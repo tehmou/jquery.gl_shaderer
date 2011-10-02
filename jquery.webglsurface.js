@@ -1,4 +1,4 @@
-$(function () {
+(function ($) {
 
     var glShaderUtils = {
         createShader: function (gl, fragmentShaderCode, vertexShaderCode) {
@@ -51,8 +51,7 @@ $(function () {
         }
     };
 
-    window.renderer = ({
-        el: $("#webgl-canvas"),
+    var renderer = ({
         image2Url: "images/IMG_2235.JPG",
         image1Url: "images/IMG_2273.JPG",
         image3Url: "images/burn3.png",
@@ -157,4 +156,12 @@ $(function () {
             this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
         }
     });
-});
+
+    $.fn.webglsurface = function (options) {
+        return this.each(function () {
+            $.extend(options, { el: $(this) }, renderer);
+            options.init();
+        });
+    };
+
+})(jQuery);

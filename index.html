@@ -75,6 +75,8 @@
     <script type="text/javascript">
 
         $(function () {
+            var rendererSettings = {};
+
             function updateSize() {
                 var el = $("#content"),
                     bodyHeight = el.height(),
@@ -94,7 +96,7 @@
             }
 
             function updateScroll(event) {
-                renderer.ratio = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                rendererSettings.ratio = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
             }
 
             $(window).resize(updateSize);
@@ -102,7 +104,8 @@
 
             updateSize();
             updateScroll();
-            renderer.init();
+
+            $("#webgl-canvas").webglsurface(rendererSettings);
         });
 
     </script>
