@@ -66,8 +66,6 @@
     </script>
 
     <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
-    <script type="text/javascript" src="lib/RequestAnimationFrame.js"></script>
-    <script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="jquery.webglsurface.js"></script>
 
     <script type="text/javascript">
@@ -100,15 +98,16 @@
 
             function updateScroll(event) {
                 rendererSettings.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                rendererSettings.render();
             }
+
+            $("#webgl-canvas").webglsurface(rendererSettings);
 
             $(window).resize(updateSize);
             $(window).scroll(updateScroll);
 
             updateSize();
             updateScroll();
-
-            $("#webgl-canvas").webglsurface(rendererSettings);
         });
 
     </script>

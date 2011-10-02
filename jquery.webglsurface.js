@@ -4,52 +4,55 @@
         return this.each(function () {
             $.extend(options, { el: $(this) }, webglsurface.renderer);
             options.init();
+            options.render();
         });
     };
 
     webglsurface.renderer = ({
+        gl: null,
         shader: null,
         textures: [],
+        viewportWidth: 0,
+        viewportHeight: 0,
 
         init: function () {
+            this.bindRender();
+            this.defaultProperties();
+            this.updateDimensions();
+            this.createGL();
+            this.createShaderProgram();
+            if (!this.vertices) {
+                this.createPlane();
+            }
+            this.createVertexBuffer();
+            this.createTextures();
+        },
+        bindRender: function () {
+            var that = this, thisRender = this.render;
+            this.render = function () { thisRender.apply(that, arguments); };
+        },
+        defaultProperties: function () {
             this.uniforms = this.uniforms || {};
             this.texturePrefix = this.texturePrefix || "tex";
             this.useResolutionUniform = this.hasOwnProperty("useResolutionUniform") ? this.useResolutionUniform : true;
             this.resolutionUniformName = this.resolutionUniformName || "resolution";
             this.usePositionAttribute = this.hasOwnProperty("usePositionAttribute") ? this.usePositionAttribute : true;
             this.positionAttributeName = this.positionAttributeName || "position";
+            this.renderOnTextureLoad = this.hasOwnProperty("renderOnTextureLoad") ? this.renderOnTextureLoad : true;
 
-            var that = this,
-                thatRenderLoop = this.renderLoop,
-                thatUpdateDimensions = this.updateDimensions;
-
-            this.renderLoop = function () { thatRenderLoop.apply(that, arguments) };
-            this.el.resize(function () { thatUpdateDimensions.apply(that, arguments); });
-
-            this.updateDimensions();
-            this.createGL();
-            this.createProgram();
-            if (!this.vertices) {
-                this.createPlane();
-            }
-            this.createVertexBuffer();
-            this.createTextures();
-            this.renderLoop();
         },
         updateDimensions: function () {
             this.el[0].width = this.el.width();
             this.el[0].height = this.el.height();
             this.viewportWidth = this.el[0].width;
             this.viewportHeight = this.el[0].height;
-            this.halfW = this.viewportWidth/2.0;
-            this.halfH = this.viewportHeight/2.0;
         },
         createGL: function () {
             this.gl = this.el[0].getContext("experimental-webgl");
             this.gl.enable(this.gl.TEXTURE_2D);
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
-        createProgram: function () {
+        createShaderProgram: function () {
             this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
@@ -65,11 +68,10 @@
         createTextures: function () {
             this.textures = [];
             for (var i = 0; i < this.textureUrls.length; i++) {
-                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i]);
+                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.render);
             }
         },
-        renderLoop: function () {
-            requestAnimationFrame(this.renderLoop);
+        render: function () {
             this.preRender();
             this.actualRender();
         },
@@ -149,12 +151,15 @@
     };
 
     webglsurface.glTextureUtils = {
-        loadImageTexture: function (gl, url)
+        loadImageTexture: function (gl, url, callback)
         {
             var that = this;
             var texture = gl.createTexture();
             var image = new Image();
-            image.onload = function() { that.createGLTexture.apply(that, [gl, image, texture]); };
+            image.onload = function() {
+                that.createGLTexture.apply(that, [gl, image, texture]);
+                if (callback) { callback(); }
+            };
             image.src = url;
             return texture;
         },
