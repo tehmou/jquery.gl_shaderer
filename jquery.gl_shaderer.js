@@ -1,14 +1,14 @@
 (function ($) {
 
-    var webglsurface = function (options) {
+    var gl_shadered = function (options) {
         return this.each(function () {
-            $.extend(options, { el: this }, webglsurface.renderer);
+            $.extend(options, { el: this }, gl_shadered.renderer);
             options.init();
             options.render();
         });
     };
 
-    webglsurface.renderer = ({
+    gl_shadered.renderer = ({
         gl: null,
         shader: null,
         textures: [],
@@ -54,7 +54,7 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createShaderProgram: function () {
-            this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
+            this.shader = gl_shadered.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
         },
@@ -69,7 +69,7 @@
         createTextures: function () {
             this.textures = [];
             for (var i = 0; i < this.textureUrls.length; i++) {
-                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.render);
+                this.textures[i] = gl_shadered.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.render);
             }
         },
         render: function () {
@@ -122,7 +122,7 @@
         }
     });
 
-    webglsurface.glShaderUtils = {
+    gl_shadered.glShaderUtils = {
         createShader: function (gl, fragmentShaderCode, vertexShaderCode) {
             var tmpProgram = gl.createProgram(), vs, fs;
             try {
@@ -151,7 +151,7 @@
         }
     };
 
-    webglsurface.glTextureUtils = {
+    gl_shadered.glTextureUtils = {
         loadImageTexture: function (gl, url, callback)
         {
             var that = this;
@@ -176,6 +176,6 @@
         }
     };
 
-    $.fn.webglsurface = webglsurface;
+    $.fn.gl_shadered = gl_shadered;
 
 })(jQuery);
