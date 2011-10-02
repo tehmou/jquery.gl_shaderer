@@ -79,6 +79,11 @@
                 uniforms: { ratio: { type: "1f", value: 0.0 } }
             };
 
+            function updateScroll() {
+                rendererSettings.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                rendererSettings.render();
+            }
+
             function updateSize() {
                 var el = $("#content"),
                     bodyHeight = el.height(),
@@ -94,10 +99,7 @@
                     el.append(item);
                     item.css("opacity", r);
                 }
-            }
-
-            function updateScroll(event) {
-                rendererSettings.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                updateScroll();
                 rendererSettings.render();
             }
 
