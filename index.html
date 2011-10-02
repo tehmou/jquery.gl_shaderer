@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
+    <title>jquery.gl_shadered burning sample</title>
     <link rel="stylesheet" href="style.css">
 
     <script type="shader-vs" id="shader-vs">
@@ -66,7 +67,7 @@
     </script>
 
     <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
-    <script type="text/javascript" src="jquery.webglsurface.js"></script>
+    <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
 
     <script type="text/javascript">
 
@@ -83,7 +84,6 @@
                     bodyHeight = el.height(),
                     screenHeight = $("body").height(),
                     r, item;
-
                 el.html("");
                 for (var i = 0; i < bodyHeight; i += 20) {
                     if (r === 1.0) {
