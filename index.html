@@ -75,7 +75,11 @@
     <script type="text/javascript">
 
         $(function () {
-            var rendererSettings = {};
+            var rendererSettings = {
+                textureUrls: ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                fragmentShaders: [$("#shader-fs").html()],
+                vertexShaders: [$("#shader-vs").html()]
+            };
 
             function updateSize() {
                 var el = $("#content"),

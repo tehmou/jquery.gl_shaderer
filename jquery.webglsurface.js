@@ -59,12 +59,8 @@
     };
 
     webglsurface.renderer = ({
-        image2Url: "images/IMG_2235.JPG",
-        image1Url: "images/IMG_2273.JPG",
-        image3Url: "images/burn3.png",
-        fragmentShaders: [$("#shader-fs").html()],
-        vertexShaders: [$("#shader-vs").html()],
         shader: null,
+        textures: [],
 
         init: function () {
             var that = this,
@@ -119,9 +115,10 @@
             this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
         },
         createTextures: function () {
-            this.texture1 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image1Url);
-            this.texture2 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image2Url);
-            this.texture3 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image3Url);
+            this.textures = [];
+            for (var i = 0; i < this.textureUrls.length; i++) {
+                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i]);
+            }
         },
         renderLoop: function () {
             requestAnimationFrame(this.renderLoop);
@@ -138,7 +135,7 @@
             this.gl.viewport(0, 0, w, h);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-            if (!this.shader || !this.texture1 || !this.texture2) {
+            if (!this.shader) {
                 return;
             }
 
@@ -148,17 +145,11 @@
             this.gl.uniform2f(this.gl.getUniformLocation(this.shader, "resolution"), w, h);
             this.gl.uniform1f(this.gl.getUniformLocation(this.shader, "ratio"), this.ratio);
 
-            this.gl.activeTexture(this.gl.TEXTURE0);
-            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture1);
-            this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex0"), 0);
-
-            this.gl.activeTexture(this.gl.TEXTURE1);
-            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture2);
-            this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex1"), 1);
-
-            this.gl.activeTexture(this.gl.TEXTURE2);
-            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture3);
-            this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex2"), 2);
+            for (var i = 0; i < this.textures.length; i++) {
+                this.gl.activeTexture(this.gl["TEXTURE"+i]);
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i]);
+                this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex"+i), i);
+            }
 
             this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
         }
