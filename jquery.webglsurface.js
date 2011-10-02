@@ -53,19 +53,6 @@
             this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
-           this.resetShaderMatrices();
-        },
-        resetShaderMatrices: function () {
-            var m = mat4.create();
-            mat4.identity(m);
-            this.setShaderMVMatrix(m);
-            this.setShaderPMatrix(m);
-        },
-        setShaderMVMatrix: function (matrix) {
-            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uMVMatrix"), false, matrix);
-        },
-        setShaderPMatrix: function (matrix) {
-            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uPMatrix"), false, matrix);
         },
         createPlane: function () {
             this.vertices = new Float32Array([ -1.0,-1.0, 1.0,-1.0, -1.0,1.0, 1.0,-1.0, 1.0,1.0, -1.0,1.0]);
