@@ -1,6 +1,13 @@
 (function ($) {
 
-    var glShaderUtils = {
+    var webglsurface = function (options) {
+        return this.each(function () {
+            $.extend(options, { el: $(this) }, webglsurface.renderer);
+            options.init();
+        });
+    };
+
+    webglsurface.glShaderUtils = {
         createShader: function (gl, fragmentShaderCode, vertexShaderCode) {
             var tmpProgram = gl.createProgram(), vs, fs;
             try {
@@ -29,7 +36,7 @@
         }
     };
 
-    var glTextureUtils = {
+    webglsurface.glTextureUtils = {
         loadImageTexture: function (gl, url)
         {
             var that = this;
@@ -51,7 +58,7 @@
         }
     };
 
-    var renderer = ({
+    webglsurface.renderer = ({
         image2Url: "images/IMG_2235.JPG",
         image1Url: "images/IMG_2273.JPG",
         image3Url: "images/burn3.png",
@@ -88,7 +95,7 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createProgram: function () {
-            this.shader = glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
+            this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
            this.resetShaderMatrices();
@@ -112,9 +119,9 @@
             this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
         },
         createTextures: function () {
-            this.texture1 = glTextureUtils.loadImageTexture(this.gl, this.image1Url);
-            this.texture2 = glTextureUtils.loadImageTexture(this.gl, this.image2Url);
-            this.texture3 = glTextureUtils.loadImageTexture(this.gl, this.image3Url);
+            this.texture1 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image1Url);
+            this.texture2 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image2Url);
+            this.texture3 = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.image3Url);
         },
         renderLoop: function () {
             requestAnimationFrame(this.renderLoop);
@@ -157,11 +164,6 @@
         }
     });
 
-    $.fn.webglsurface = function (options) {
-        return this.each(function () {
-            $.extend(options, { el: $(this) }, renderer);
-            options.init();
-        });
-    };
+    $.fn.webglsurface = webglsurface;
 
 })(jQuery);
