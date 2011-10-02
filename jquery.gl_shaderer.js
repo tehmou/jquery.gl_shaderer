@@ -17,7 +17,6 @@
         resolutionUniformName: "resolution",
         usePositionAttribute: true,
         positionAttributeName: "position",
-        renderOnTextureLoad: true,
 
         gl: null,
         shader: null,
@@ -53,7 +52,7 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createShaderProgram: function () {
-            this.shader = gl_shadered.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
+            this.shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
         },
@@ -67,9 +66,21 @@
         },
         createTextures: function () {
             this.textures = [];
-            for (var i = 0; i < this.textureUrls.length; i++) {
-                this.textures[i] = gl_shadered.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.renderOnTextureLoad && this.render);
+            for (var i = 0; i < this.images.length; i++) {
+                this.textures[i] = this.createTexture(this.images[i]);
             }
+        },
+        createTexture: function (image) {
+            var gl = this.gl, texture = gl.createTexture();
+            gl.enable(gl.TEXTURE_2D);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            return texture;
         },
         render: function () {
             this.preRender();
@@ -122,19 +133,29 @@
     });
 
     gl_shadered.glShaderUtils = {
-        createShader: function (gl, fragmentShaderCode, vertexShaderCode) {
-            var tmpProgram = gl.createProgram(), vs, fs;
+        createProgram: function (gl, vertexShaderCodes, fragmentShaderCodes) {
+            var i, tmpProgram = gl.createProgram(), vertexShaders = [], fragmentShaders = [];
             try {
-                vs = this.compileShader(gl, vertexShaderCode, gl.VERTEX_SHADER);
-                fs = this.compileShader(gl, fragmentShaderCode, gl.FRAGMENT_SHADER);
+                for (i = 0; i < vertexShaderCodes.length; i++) {
+                    vertexShaders.push(this.compileShader(gl, vertexShaderCodes[i], gl.VERTEX_SHADER));
+                }
+                for (i = 0; i < fragmentShaderCodes.length; i++) {
+                    fragmentShaders.push(this.compileShader(gl, fragmentShaderCodes[i], gl.FRAGMENT_SHADER));
+                }
             } catch (e) {
                 gl.deleteProgram( tmpProgram );
                 throw e;
             }
-            gl.attachShader(tmpProgram, vs);
-            gl.attachShader(tmpProgram, fs);
-            gl.deleteShader(vs);
-            gl.deleteShader(fs);
+            for (i = 0; i < vertexShaders.length; i++) {
+                var vs = vertexShaders[i];
+                gl.attachShader(tmpProgram, vs);
+                gl.deleteShader(vs);
+            }
+            for (i = 0; i < fragmentShaders.length; i++) {
+                var fs = fragmentShaders[i];
+                gl.attachShader(tmpProgram, fs);
+                gl.deleteShader(fs);
+            }
             gl.linkProgram(tmpProgram);
             return tmpProgram;
         },
@@ -142,36 +163,10 @@
             var s = gl.createShader(type);
             gl.shaderSource(s, code);
             gl.compileShader(s);
-            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
-            {
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
                 throw "SHADER ERROR: " + gl.getShaderInfoLog(s);
             }
             return s;
-        }
-    };
-
-    gl_shadered.glTextureUtils = {
-        loadImageTexture: function (gl, url, callback)
-        {
-            var that = this;
-            var texture = gl.createTexture();
-            var image = new Image();
-            image.onload = function() {
-                that.createGLTexture.apply(that, [gl, image, texture]);
-                if (callback) { callback(); }
-            };
-            image.src = url;
-            return texture;
-        },
-        createGLTexture: function (gl, image, texture) {
-            gl.enable(gl.TEXTURE_2D);
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.bindTexture(gl.TEXTURE_2D, null);
         }
     };
 
