@@ -133,13 +133,9 @@
             this.actualRender();
         },
         preRender: function () {
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.mQuadVBO);
-            this.gl.vertexAttribPointer(this.gl.getAttribLocation(this.shader, "position"), 2, this.gl.FLOAT, false, 0, 0);
         },
         actualRender: function () {
-            var w = this.viewportWidth;
-            var h = this.viewportHeight;
-            this.gl.viewport(0, 0, w, h);
+            this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
             if (!this.shader) {
@@ -147,15 +143,22 @@
             }
 
             this.gl.useProgram(this.shader);
+            this.setupAttributes();
+            this.setupUniforms();
+            this.setupTextures();
 
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.mQuadVBO);
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+        },
+        setupAttributes: function () {
             if (this.usePositionAttribute) {
-                this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, this.positionAttributeName));
+                this.gl.vertexAttribPointer(this.gl.getAttribLocation(this.shader, this.positionAttributeName), 2, this.gl.FLOAT, false, 0, 0);
             }
-
             if (this.useResolutionUniform) {
-                this.gl.uniform2f(this.gl.getUniformLocation(this.shader, this.resolutionUniformName), w, h);
+                this.gl.uniform2f(this.gl.getUniformLocation(this.shader, this.resolutionUniformName), this.viewportWidth, this.viewportHeight);
             }
-
+        },
+        setupUniforms: function () {
             for (var uniformName in this.uniforms) {
                 if (!this.uniforms.hasOwnProperty(uniformName)) {
                     continue;
@@ -163,14 +166,13 @@
                 var uniform = this.uniforms[uniformName];
                 this.gl["uniform"+uniform.type](this.gl.getUniformLocation(this.shader, uniformName), uniform.value);
             }
-
+        },
+        setupTextures: function () {
             for (var i = 0; i < this.textures.length; i++) {
                 this.gl.activeTexture(this.gl["TEXTURE"+i]);
                 this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i]);
                 this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex"+i), i);
             }
-
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
         }
     });
 
