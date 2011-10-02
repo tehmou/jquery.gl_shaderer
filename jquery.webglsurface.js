@@ -7,6 +7,131 @@
         });
     };
 
+    webglsurface.renderer = ({
+        shader: null,
+        textures: [],
+
+        init: function () {
+            this.uniforms = this.uniforms || {};
+            this.texturePrefix = this.texturePrefix || "tex";
+            this.useResolutionUniform = this.hasOwnProperty("useResolutionUniform") ? this.useResolutionUniform : true;
+            this.resolutionUniformName = this.resolutionUniformName || "resolution";
+            this.usePositionAttribute = this.hasOwnProperty("usePositionAttribute") ? this.usePositionAttribute : true;
+            this.positionAttributeName = this.positionAttributeName || "position";
+
+            var that = this,
+                thatRenderLoop = this.renderLoop,
+                thatUpdateDimensions = this.updateDimensions;
+
+            this.renderLoop = function () { thatRenderLoop.apply(that, arguments) };
+            this.el.resize(function () { thatUpdateDimensions.apply(that, arguments); });
+
+            this.updateDimensions();
+            this.createGL();
+            this.createProgram();
+            if (!this.vertices) {
+                this.createPlane();
+            }
+            this.createVertexBuffer();
+            this.createTextures();
+            this.renderLoop();
+        },
+        updateDimensions: function () {
+            this.el[0].width = this.el.width();
+            this.el[0].height = this.el.height();
+            this.viewportWidth = this.el[0].width;
+            this.viewportHeight = this.el[0].height;
+            this.halfW = this.viewportWidth/2.0;
+            this.halfH = this.viewportHeight/2.0;
+        },
+        createGL: function () {
+            this.gl = this.el[0].getContext("experimental-webgl");
+            this.gl.enable(this.gl.TEXTURE_2D);
+            this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+        },
+        createProgram: function () {
+            this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
+            this.gl.useProgram(this.shader);
+            this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
+           this.resetShaderMatrices();
+        },
+        resetShaderMatrices: function () {
+            var m = mat4.create();
+            mat4.identity(m);
+            this.setShaderMVMatrix(m);
+            this.setShaderPMatrix(m);
+        },
+        setShaderMVMatrix: function (matrix) {
+            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uMVMatrix"), false, matrix);
+        },
+        setShaderPMatrix: function (matrix) {
+            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uPMatrix"), false, matrix);
+        },
+        createPlane: function () {
+            this.vertices = new Float32Array([ -1.0,-1.0, 1.0,-1.0, -1.0,1.0, 1.0,-1.0, 1.0,1.0, -1.0,1.0]);
+        },
+        createVertexBuffer: function () {
+            this.vertexBuffer = this.gl.createBuffer();
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.STATIC_DRAW);
+        },
+        createTextures: function () {
+            this.textures = [];
+            for (var i = 0; i < this.textureUrls.length; i++) {
+                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i]);
+            }
+        },
+        renderLoop: function () {
+            requestAnimationFrame(this.renderLoop);
+            this.preRender();
+            this.actualRender();
+        },
+        preRender: function () {
+            this.setupViewport();
+            this.setupShader();
+        },
+        setupViewport: function () {
+            this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+        },
+        setupShader: function () {
+            if (this.shader) {
+                this.gl.useProgram(this.shader);
+                this.setupAttributes();
+                this.setupUniforms();
+                this.setupTextures();
+            }
+        },
+        setupAttributes: function () {
+            if (this.usePositionAttribute) {
+                this.gl.vertexAttribPointer(this.gl.getAttribLocation(this.shader, this.positionAttributeName), 2, this.gl.FLOAT, false, 0, 0);
+            }
+            if (this.useResolutionUniform) {
+                this.gl.uniform2f(this.gl.getUniformLocation(this.shader, this.resolutionUniformName), this.viewportWidth, this.viewportHeight);
+            }
+        },
+        setupUniforms: function () {
+            for (var uniformName in this.uniforms) {
+                if (!this.uniforms.hasOwnProperty(uniformName)) {
+                    continue;
+                }
+                var uniform = this.uniforms[uniformName];
+                this.gl["uniform"+uniform.type](this.gl.getUniformLocation(this.shader, uniformName), uniform.value);
+            }
+        },
+        setupTextures: function () {
+            for (var i = 0; i < this.textures.length; i++) {
+                this.gl.activeTexture(this.gl["TEXTURE"+i]);
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i]);
+                this.gl.uniform1i(this.gl.getUniformLocation(this.shader, this.texturePrefix+i), i);
+            }
+        },
+        actualRender: function () {
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices.length/2);
+        }
+    });
+
     webglsurface.glShaderUtils = {
         createShader: function (gl, fragmentShaderCode, vertexShaderCode) {
             var tmpProgram = gl.createProgram(), vs, fs;
@@ -57,124 +182,6 @@
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
     };
-
-    webglsurface.renderer = ({
-        shader: null,
-        textures: [],
-
-        init: function () {
-            this.uniforms = this.uniforms || {};
-
-            this.useResolutionUniform = this.hasOwnProperty("useResolutionUniform") ? this.useResolutionUniform : true;
-            this.resolutionUniformName = this.resolutionUniformName || "resolution";
-            this.usePositionAttribute = this.hasOwnProperty("usePositionAttribute") ? this.usePositionAttribute : true;
-            this.positionAttributeName = this.positionAttributeName || "position";
-
-            var that = this,
-                thatRenderLoop = this.renderLoop,
-                thatUpdateDimensions = this.updateDimensions;
-
-            this.renderLoop = function () { thatRenderLoop.apply(that, arguments) };
-            this.el.resize(function () { thatUpdateDimensions.apply(that, arguments); });
-
-            this.updateDimensions();
-            this.createGL();
-            this.createProgram();
-            this.createPlane();
-            this.createTextures();
-            this.renderLoop();
-        },
-        updateDimensions: function () {
-            this.el[0].width = this.el.width();
-            this.el[0].height = this.el.height();
-            this.viewportWidth = this.el[0].width;
-            this.viewportHeight = this.el[0].height;
-            this.halfW = this.viewportWidth/2.0;
-            this.halfH = this.viewportHeight/2.0;
-        },
-        createGL: function () {
-            this.gl = this.el[0].getContext("experimental-webgl");
-            this.gl.enable(this.gl.TEXTURE_2D);
-            this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-        },
-        createProgram: function () {
-            this.shader = webglsurface.glShaderUtils.createShader(this.gl, this.fragmentShaders[0], this.vertexShaders[0]);
-            this.gl.useProgram(this.shader);
-            this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
-           this.resetShaderMatrices();
-        },
-        resetShaderMatrices: function () {
-            var m = mat4.create();
-            mat4.identity(m);
-            this.setShaderMVMatrix(m);
-            this.setShaderPMatrix(m);
-        },
-        setShaderMVMatrix: function (matrix) {
-            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uMVMatrix"), false, matrix);
-        },
-        setShaderPMatrix: function (matrix) {
-            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(this.shader, "uPMatrix"), false, matrix);
-        },
-        createPlane: function () {
-            var vertices = new Float32Array([ -1.0,-1.0, 1.0,-1.0, -1.0,1.0, 1.0,-1.0, 1.0,1.0, -1.0,1.0]);
-            this.mQuadVBO = this.gl.createBuffer();
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.mQuadVBO);
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
-        },
-        createTextures: function () {
-            this.textures = [];
-            for (var i = 0; i < this.textureUrls.length; i++) {
-                this.textures[i] = webglsurface.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i]);
-            }
-        },
-        renderLoop: function () {
-            requestAnimationFrame(this.renderLoop);
-            this.preRender();
-            this.actualRender();
-        },
-        preRender: function () {
-        },
-        actualRender: function () {
-            this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
-            if (!this.shader) {
-                return;
-            }
-
-            this.gl.useProgram(this.shader);
-            this.setupAttributes();
-            this.setupUniforms();
-            this.setupTextures();
-
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.mQuadVBO);
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-        },
-        setupAttributes: function () {
-            if (this.usePositionAttribute) {
-                this.gl.vertexAttribPointer(this.gl.getAttribLocation(this.shader, this.positionAttributeName), 2, this.gl.FLOAT, false, 0, 0);
-            }
-            if (this.useResolutionUniform) {
-                this.gl.uniform2f(this.gl.getUniformLocation(this.shader, this.resolutionUniformName), this.viewportWidth, this.viewportHeight);
-            }
-        },
-        setupUniforms: function () {
-            for (var uniformName in this.uniforms) {
-                if (!this.uniforms.hasOwnProperty(uniformName)) {
-                    continue;
-                }
-                var uniform = this.uniforms[uniformName];
-                this.gl["uniform"+uniform.type](this.gl.getUniformLocation(this.shader, uniformName), uniform.value);
-            }
-        },
-        setupTextures: function () {
-            for (var i = 0; i < this.textures.length; i++) {
-                this.gl.activeTexture(this.gl["TEXTURE"+i]);
-                this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i]);
-                this.gl.uniform1i(this.gl.getUniformLocation(this.shader, "tex"+i), i);
-            }
-        }
-    });
 
     $.fn.webglsurface = webglsurface;
 
