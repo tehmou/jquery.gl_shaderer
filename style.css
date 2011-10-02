@@ -1,0 +1,39 @@
+body {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    font-family: "Droid Sans", "Arial", sans;
+}
+
+#content {
+    position: absolute;
+    width: 100px;
+    height: 400%;
+    text-align: right;
+}
+
+#content span {
+    display: block;
+    height: 20px;
+    margin-right: 40px;
+}
+
+#pointer {
+    position: fixed;
+    top: 50%;
+    left: 70px;
+    margin-top: -7px;
+}
+
+#webgl-canvas {
+    position: fixed;
+    width: 720px;
+    height: 480px;
+    left: 50%;
+    top: 50%;
+    margin-left: -360px;
+    margin-top: -240px;
+}
