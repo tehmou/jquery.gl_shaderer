@@ -78,7 +78,8 @@
             var rendererSettings = {
                 textureUrls: ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
                 fragmentShaders: [$("#shader-fs").html()],
-                vertexShaders: [$("#shader-vs").html()]
+                vertexShaders: [$("#shader-vs").html()],
+                uniforms: { ratio: { type: "1f", value: 0.0 } }
             };
 
             function updateSize() {
@@ -100,7 +101,7 @@
             }
 
             function updateScroll(event) {
-                rendererSettings.ratio = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                rendererSettings.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
             }
 
             $(window).resize(updateSize);

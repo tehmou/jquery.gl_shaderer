@@ -63,6 +63,13 @@
         textures: [],
 
         init: function () {
+            this.uniforms = this.uniforms || {};
+
+            this.useResolutionUniform = this.hasOwnProperty("useResolutionUniform") ? this.useResolutionUniform : true;
+            this.resolutionUniformName = this.resolutionUniformName || "resolution";
+            this.usePositionAttribute = this.hasOwnProperty("usePositionAttribute") ? this.usePositionAttribute : true;
+            this.positionAttributeName = this.positionAttributeName || "position";
+
             var that = this,
                 thatRenderLoop = this.renderLoop,
                 thatUpdateDimensions = this.updateDimensions;
@@ -140,10 +147,22 @@
             }
 
             this.gl.useProgram(this.shader);
-            this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
 
-            this.gl.uniform2f(this.gl.getUniformLocation(this.shader, "resolution"), w, h);
-            this.gl.uniform1f(this.gl.getUniformLocation(this.shader, "ratio"), this.ratio);
+            if (this.usePositionAttribute) {
+                this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, this.positionAttributeName));
+            }
+
+            if (this.useResolutionUniform) {
+                this.gl.uniform2f(this.gl.getUniformLocation(this.shader, this.resolutionUniformName), w, h);
+            }
+
+            for (var uniformName in this.uniforms) {
+                if (!this.uniforms.hasOwnProperty(uniformName)) {
+                    continue;
+                }
+                var uniform = this.uniforms[uniformName];
+                this.gl["uniform"+uniform.type](this.gl.getUniformLocation(this.shader, uniformName), uniform.value);
+            }
 
             for (var i = 0; i < this.textures.length; i++) {
                 this.gl.activeTexture(this.gl["TEXTURE"+i]);
