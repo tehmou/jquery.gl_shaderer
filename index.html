@@ -72,7 +72,7 @@
     <script type="text/javascript">
 
         $(function () {
-            var rendererSettings = {
+            var renderer = {
                 textureUrls: ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
                 fragmentShaders: [$("#shader-fs").html()],
                 vertexShaders: [$("#shader-vs").html()],
@@ -80,8 +80,8 @@
             };
 
             function updateScroll() {
-                rendererSettings.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
-                rendererSettings.render();
+                renderer.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                renderer.render();
             }
 
             function updateSize() {
@@ -100,10 +100,10 @@
                     item.css("opacity", r);
                 }
                 updateScroll();
-                rendererSettings.render();
+                renderer.render();
             }
 
-            $("#webgl-canvas").webglsurface(rendererSettings);
+            $("#webgl-canvas").webglsurface(renderer);
 
             $(window).resize(updateSize);
             $(window).scroll(updateScroll);

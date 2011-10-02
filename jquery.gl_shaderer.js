@@ -2,7 +2,7 @@
 
     var webglsurface = function (options) {
         return this.each(function () {
-            $.extend(options, { el: $(this) }, webglsurface.renderer);
+            $.extend(options, { el: this }, webglsurface.renderer);
             options.init();
             options.render();
         });
@@ -42,13 +42,14 @@
 
         },
         updateDimensions: function () {
-            this.el[0].width = this.el.width();
-            this.el[0].height = this.el.height();
-            this.viewportWidth = this.el[0].width;
-            this.viewportHeight = this.el[0].height;
+            var $el = $(this.el);
+            this.el.width = $el.width();
+            this.el.height = $el.height();
+            this.viewportWidth = this.el.width;
+            this.viewportHeight = this.el.height;
         },
         createGL: function () {
-            this.gl = this.el[0].getContext("experimental-webgl");
+            this.gl = this.el.getContext("experimental-webgl");
             this.gl.enable(this.gl.TEXTURE_2D);
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
