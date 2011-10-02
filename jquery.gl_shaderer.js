@@ -2,13 +2,23 @@
 
     var gl_shadered = function (options) {
         return this.each(function () {
-            $.extend(options, { el: this }, gl_shadered.renderer);
+            // Extend options with itself to restore all overridden values.
+            $.extend(options, { el: this }, gl_shadered.renderer, $.extend({}, options));
             options.init();
             options.render();
         });
     };
 
     gl_shadered.renderer = ({
+        
+        uniforms: {},
+        texturePrefix: "tex",
+        useResolutionUniform: true,
+        resolutionUniformName: "resolution",
+        usePositionAttribute: true,
+        positionAttributeName: "position",
+        renderOnTextureLoad: true,
+
         gl: null,
         shader: null,
         textures: [],
@@ -17,7 +27,6 @@
 
         init: function () {
             this.bindRender();
-            this.defaultProperties();
             this.updateDimensions();
             this.createGL();
             this.createShaderProgram();
@@ -30,16 +39,6 @@
         bindRender: function () {
             var that = this, thisRender = this.render;
             this.render = function () { thisRender.apply(that, arguments); };
-        },
-        defaultProperties: function () {
-            this.uniforms = this.uniforms || {};
-            this.texturePrefix = this.texturePrefix || "tex";
-            this.useResolutionUniform = this.hasOwnProperty("useResolutionUniform") ? this.useResolutionUniform : true;
-            this.resolutionUniformName = this.resolutionUniformName || "resolution";
-            this.usePositionAttribute = this.hasOwnProperty("usePositionAttribute") ? this.usePositionAttribute : true;
-            this.positionAttributeName = this.positionAttributeName || "position";
-            this.renderOnTextureLoad = this.hasOwnProperty("renderOnTextureLoad") ? this.renderOnTextureLoad : true;
-
         },
         updateDimensions: function () {
             var $el = $(this.el);
@@ -69,7 +68,7 @@
         createTextures: function () {
             this.textures = [];
             for (var i = 0; i < this.textureUrls.length; i++) {
-                this.textures[i] = gl_shadered.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.render);
+                this.textures[i] = gl_shadered.glTextureUtils.loadImageTexture(this.gl, this.textureUrls[i], this.renderOnTextureLoad && this.render);
             }
         },
         render: function () {
