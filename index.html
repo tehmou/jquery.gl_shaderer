@@ -80,12 +80,14 @@
             };
 
             function updateScroll() {
-                renderer.uniforms.ratio.value = document.body.scrollTop/($("#content").height()-document.body.clientHeight);
+                var scrollTop = window.pageYOffset || document.body.scrollTop;
+                var value = scrollTop/($("#spinner").height()-document.body.clientHeight);
+                renderer.uniforms.ratio.value = value;
                 renderer.render();
             }
 
             function updateSize() {
-                var el = $("#content"),
+                var el = $("#spinner"),
                     bodyHeight = el.height(),
                     screenHeight = $("body").height(),
                     r, item;
@@ -116,7 +118,10 @@
 
     <body>
         <canvas id="webgl-canvas"></canvas>
-        <div id="content"></div>
+        <div id="spinner">
+            <h1></h1>
+
+        </div>
         <div id="pointer"><span>&lt;=</span></div>
     </body>
 </html>

@@ -8,14 +8,14 @@ body {
     font-family: "Droid Sans", "Arial", sans;
 }
 
-#content {
+#spinner {
     position: absolute;
     width: 100px;
     height: 400%;
     text-align: right;
 }
 
-#content span {
+#spinner span {
     display: block;
     height: 20px;
     margin-right: 40px;
