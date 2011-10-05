@@ -52,7 +52,13 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createShaderProgram: function () {
-            this.shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);
+            if (this.vertexShaders || this.fragmentShaders) {
+                var shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);;
+                this.attachShaderProgram(shader)
+            }
+        },
+        attachShaderProgram: function (shader) {
+            this.shader = shader;
             this.gl.useProgram(this.shader);
             this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shader, "position"));
         },
