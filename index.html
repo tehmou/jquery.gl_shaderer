@@ -89,6 +89,7 @@
             function updateSize() {
                 var el = $("#spinner"),
                     bodyHeight = el.height(),
+                    screenWidth = $("body").width(),
                     screenHeight = $("body").height(),
                     r, item;
                 el.html("");
@@ -101,6 +102,7 @@
                     el.append(item);
                     item.css("opacity", r);
                 }
+                $("#content").width(screenWidth - $("#webgl-canvas").width() - 150);
                 updateScroll();
                 renderer.render();
             }
@@ -118,10 +120,10 @@
 
     <body>
         <canvas id="webgl-canvas"></canvas>
-        <div id="spinner">
-            <h1></h1>
-
-        </div>
+        <div id="spinner"></div>
         <div id="pointer"><span>&lt;=</span></div>
+        <div id="content">
+            <h1>Shader example</h1>
+        </div>
     </body>
 </html>

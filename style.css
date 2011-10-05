@@ -28,12 +28,17 @@ body {
     margin-top: -7px;
 }
 
+#content {
+    position: absolute;
+    right: 0;
+    background: red;
+}
+
 #webgl-canvas {
     position: fixed;
-    width: 720px;
-    height: 480px;
-    left: 50%;
+    width: 600px;
+    height: 400px;
+    left: 130px;
     top: 50%;
-    margin-left: -360px;
     margin-top: -240px;
 }
