@@ -5,48 +5,79 @@
 
     <title>jquery.gl_shadered burning sample</title>
 
-    <script type="shader-vs" id="shader-vs">
+    <script id="shader-vs" type="shader-vs">
+
+// Coordinate we are rendering; provided by WebGL.
 attribute vec3 position;
-varying vec2 texturePos;
+
+// Our variable for passing the position to the fragment shaders.
+varying vec2 xyPos;
 
 void main(void) {
-    texturePos = position.st;
+    xyPos = vec2(position.s*.5+.5,.5-position.t*.5);
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
 }
     </script>
 
-    <script type="shader-fs" id="plain-fs">
+    <script id="plain-fs" type="shader-fs">
+// Some boilerplate code.
 #ifdef GL_ES
 precision highp float;
 #endif
 
-uniform vec2 resolution;
-uniform sampler2D tex0;
-uniform float ratio;
-varying vec2 texturePos;
+// The vertex shader will give us this.
+varying vec2 xyPos;
 
+// Pixel size of the canvas.
+uniform vec2 resolution;
+
+// tex0 is our image.
+uniform sampler2D tex0;
+
+// Entry point for shaders.
 void main(void) {
-    vec2 p = texturePos.xy;
-    vec4 o = texture2D(tex0,vec2(p.s*.5+.5,.5-p.t*.5));
+    // Color of the current pixel in (r,g,b,a).
+    vec4 o = texture2D(tex0, xyPos);
+
+    // Give our result to WebGL.
     gl_FragColor = o;
 }
     </script>
 
-    <script type="shader-fs" id="negative-fs">
+    <script id="negative-fs" type="shader-fs">
 #ifdef GL_ES
 precision highp float;
 #endif
 
+varying vec2 xyPos;
 uniform vec2 resolution;
 uniform sampler2D tex0;
-uniform float ratio;
-varying vec2 texturePos;
 
 void main(void) {
-    vec2 p = texturePos.xy;
-    vec4 o = texture2D(tex0,vec2(p.s*.5+.5,.5-p.t*.5));
-    vec4 negative = vec4(1.0-o.x, 1.0-o.y, 1.0-o.z, 1.0);
-    gl_FragColor = ratio*negative + (1.0-ratio)*o;
+    vec4 o = texture2D(tex0, xyPos);
+
+    // Return a percentage value with alpha=1.0
+    gl_FragColor = vec4(1.0-o.x, 1.0-o.y, 1.0-o.z, 1.0);
+}
+    </script>
+
+    <script id="bw-fs" type="shader-fs">
+#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec2 xyPos;
+uniform vec2 resolution;
+uniform sampler2D tex0;
+
+void main(void) {
+    vec4 o = texture2D(tex0, xyPos);
+
+    // Calculate average.
+    float average = (o.r+o.g+o.b)/3.0;
+
+    // Create new that is grayscale.
+    gl_FragColor = vec4(average, average, average, 1.0);
 }
     </script>
 
@@ -61,20 +92,25 @@ void main(void) {
                 $("#webgl-canvas-normal").gl_shadered({
                     images: images,
                     fragmentShaders: [$("#plain-fs").html()],
-                    vertexShaders: [$("#shader-vs").html()],
-                    uniforms: { ratio: { type: "1f", value: 1.0 } }
+                    vertexShaders: [$("#shader-vs").html()]
                 });
 
                 $("#webgl-canvas-negative").gl_shadered({
                     images: images,
                     fragmentShaders: [$("#negative-fs").html()],
-                    vertexShaders: [$("#shader-vs").html()],
-                    uniforms: { ratio: { type: "1f", value: 1.0 } }
+                    vertexShaders: [$("#shader-vs").html()]
+                });
+
+                $("#webgl-canvas-bw").gl_shadered({
+                    images: images,
+                    fragmentShaders: [$("#bw-fs").html()],
+                    vertexShaders: [$("#shader-vs").html()]
                 });
             }
 
+            $("#plain-fs-code").html($("#plain-fs").text());
             $("#negative-fs-code").html($("#negative-fs").text());
-            $("#shader-vs-code").html($("#shader-vs").text());
+            $("#bw-fs-code").html($("#bw-fs").text());
 
             var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"];
             $.fn.gl_shadered.loadImages(textureUrls, initialize);
@@ -97,14 +133,21 @@ void main(void) {
 
         h1, h2 {
             margin: 0;
+            font-family: "Helvetica Neue", Arial, sans;
         }
 
         h1 {
-            padding: 3rem 0 2rem 0;
+            padding: 0;
+            text-align: center;
+            font-size: 3rem;
+        }
+
+        h2 {
+            padding: .2rem 0 1rem 0;
         }
 
         pre {
-            margin-left: 1rem;
+            margin: 0 0 0 1rem;
             font-size: .7rem;
         }
 
@@ -147,7 +190,7 @@ void main(void) {
         #content {
             border-left: .1rem solid #ddd;
             border-right: .1rem solid #ddd;
-            padding: 1rem 1.5rem;
+            padding: 3rem 1.5rem;
         }
 
     </style>
@@ -158,15 +201,17 @@ void main(void) {
             <div id="content">
                 <h1>Fragment shader gallery</h1>
 
+                <div class="hr"></div>
                 <div>
                     <div class="left">
                         <canvas id="webgl-canvas-normal" class="webgl-canvas"></canvas>
                     </div>
                     <div class="paragraph">
+                        <h2>Starting point</h2>
                         <p>This is the image we will use.</p>
                         <p>For all shaders here, we use a simple <b>vertex shader</b> that does not do much. Normally a vertex shader could be used to transform the vertices of the underlying 3D model. This would include, for instance, scaling or rotating them.</p>
-                        <p>We are using a simple plane that covers the whole canvas. We save the coordinate of the plane we are processing in texturePos.</p>
-                        <pre id="shader-vs-code"></pre>
+                        <p>Since we only want to render 2D images, we use a simple plane that covers the whole canvas. We save the coordinate of the plane we are processing in texturePos.</p>
+                        <pre id="plain-fs-code"></pre>
                     </div>
                 </div>
 
@@ -181,6 +226,21 @@ void main(void) {
                         <pre id="negative-fs-code"></pre>
                     </div>
                 </div>
+
+                <div class="hr"></div>
+
+                <div>
+                    <div class="left">
+                        <canvas id="webgl-canvas-bw" class="webgl-canvas"></canvas>
+                    </div>
+                    <div class="paragraph">
+                        <h2>Black and white (linear)</h2>
+                        <pre id="bw-fs-code"></pre>
+                    </div>
+                </div>
+
+                <div class="hr"></div>
+
             </div>
         </div>
     </body>
