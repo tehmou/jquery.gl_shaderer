@@ -77,7 +77,7 @@
             $("#fs-shader-pre").text($("#shader-fs").html());
 
             var renderer = {
-                textureUrls: ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                images: [],
                 fragmentShaders: [$("#shader-fs").html()],
                 vertexShaders: [$("#shader-vs").html()],
                 uniforms: { ratio: { type: "1f", value: 0.0 } }
@@ -111,13 +111,29 @@
                 renderer.render();
             }
 
-            $("#webgl-canvas").gl_shadered(renderer);
+            function initialize() {
+                $("#webgl-canvas").gl_shadered(renderer);
+                $(window).resize(updateSize);
+                $(window).scroll(updateScroll);
+                updateSize();
+                updateScroll();
+            }
 
-            $(window).resize(updateSize);
-            $(window).scroll(updateScroll);
+            var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                imagesToLoad = textureUrls.length;
 
-            updateSize();
-            updateScroll();
+            for (var i = 0; i < textureUrls.length; i++) {
+                (function () {
+                    var index = i, image = new Image();
+                    image.onload = function() {
+                        renderer.images[index] = image;
+                        if (--imagesToLoad <= 0) {
+                            initialize();
+                        }
+                    };
+                    image.src = textureUrls[i];
+                })();
+            }
         });
 
     </script>
