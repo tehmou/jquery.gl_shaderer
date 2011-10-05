@@ -4,6 +4,7 @@
 <head>
 
     <title>jquery.gl_shadered burning sample</title>
+    <link rel="stylesheet" href="style.css">
 
     <script type="shader-vs" id="shader-vs">
         attribute vec3 position;
@@ -14,7 +15,7 @@
             gl_Position = vec4(position.x, position.y, 0.0, 1.0);
         }
     </script>
-
+    
     <script type="shader-fs" id="shader-fs">
         #ifdef GL_ES
         precision highp float;
@@ -72,72 +73,82 @@
     <script type="text/javascript">
 
         $(function () {
+            $("#vs-shader-pre").text($("#shader-vs").html());
+            $("#fs-shader-pre").text($("#shader-fs").html());
 
             var renderer = {
+                images: [],
                 fragmentShaders: [$("#shader-fs").html()],
                 vertexShaders: [$("#shader-vs").html()],
                 uniforms: { ratio: { type: "1f", value: 0.0 } }
             };
 
-            function initialize(images) {
-                renderer.images = images;
-                $("#webgl-canvas").gl_shadered(renderer);
+            function updateScroll() {
+                var scrollTop = window.pageYOffset || document.body.scrollTop;
+                var value = scrollTop/($("#spinner").height()-document.body.clientHeight);
+                renderer.uniforms.ratio.value = value;
+                renderer.render();
             }
 
-            var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"];
-            $.fn.gl_shadered.loadImages(textureUrls, initialize);
+            function updateSize() {
+                var el = $("#spinner"),
+                    bodyHeight = el.height(),
+                    screenWidth = $("body").width(),
+                    screenHeight = $("body").height(),
+                    r, item;
+                el.html("");
+                for (var i = 0; i < bodyHeight; i += 20) {
+                    if (r === 1.0) {
+                        break;
+                    }
+                    r = Math.min(1.0, Math.max(0.0, (i - screenHeight/2)/(bodyHeight - screenHeight -20)));
+                    item = $("<span>" + Math.floor(100*r) + "</span>")
+                    el.append(item);
+                    item.css("opacity", r);
+                }
+                $("#content").width(screenWidth - $("#webgl-canvas").width() - 150);
+                updateScroll();
+                renderer.render();
+            }
+
+            function initialize() {
+                $("#webgl-canvas").gl_shadered(renderer);
+                $(window).resize(updateSize);
+                $(window).scroll(updateScroll);
+                updateSize();
+                updateScroll();
+            }
+
+            var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                imagesToLoad = textureUrls.length;
+
+            for (var i = 0; i < textureUrls.length; i++) {
+                (function () {
+                    var index = i, image = new Image();
+                    image.onload = function() {
+                        renderer.images[index] = image;
+                        if (--imagesToLoad <= 0) {
+                            initialize();
+                        }
+                    };
+                    image.src = textureUrls[i];
+                })();
+            }
         });
 
     </script>
 
-    <style type="text/css">
-
-        body {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #666;
-            text-shadow: #bbb 1px 1px 2px;
-        }
-
-        h1 {
-            margin: 0;
-            padding: 3rem 0 2rem 0;
-        }
-
-        .webgl-canvas {
-            width: 30rem;
-            height: 20rem;
-            display: inline-block;
-        }
-
-        .paragraph {
-            padding: 0.1rem 0 0.1rem 0.5rem;
-            display: inline-block;
-            vertical-align: top;
-        }
-
-        #content {
-            width: 60rem;
-            background: #fff;
-            min-height: 100%;
-            margin: 0 auto;
-            border-left: 1rem solid #eee;
-            border-right: 1rem solid #eee;
-            padding: 0 1rem;
-        }
-    </style>
-
     </head>
     <body>
+        <canvas id="webgl-canvas" class="webgl-canvas fixed"></canvas>
+        <div id="spinner"></div>
+        <div id="pointer"><span>&lt;=</span></div>
         <div id="content">
-            <h1>Shader basics</h1>
-            <div>
-                <canvas id="webgl-canvas" class="webgl-canvas"></canvas>
-                <div class="paragraph">This is the basic image without any shaders.</p>
-            </div>
+            <h1>Shader example</h1>
+            <h2>Vertex shader</h2>
+            <pre id="vs-shader-pre"></pre>
+            <h2>Fragment shader</h2>
+            <pre id="fs-shader-pre"></pre>
         </div>
     </body>
 </html>

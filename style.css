@@ -33,11 +33,14 @@ body {
     right: 0;
 }
 
-#webgl-canvas {
-    position: fixed;
+.webgl-canvas {
     width: 600px;
     height: 400px;
+}
+
+.webgl-canvas.fixed {
     left: 130px;
+    position: fixed;
     top: 50%;
     margin-top: -240px;
 }

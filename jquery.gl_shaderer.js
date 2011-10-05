@@ -170,6 +170,22 @@
         }
     };
 
+    gl_shadered.loadImages = function (urls, callback) {
+        var images = [], imagesToLoad = urls.length;
+        for (var i = 0; i < urls.length; i++) {
+            (function () {
+                var index = i, image = new Image();
+                image.onload = function() {
+                    images[index] = image;
+                    if (--imagesToLoad <= 0) {
+                        callback(images)
+                    }
+                };
+                image.src = urls[i];
+            })();
+        }
+    };
+
     $.fn.gl_shadered = gl_shadered;
 
 })(jQuery);
