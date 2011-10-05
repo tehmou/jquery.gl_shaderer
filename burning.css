@@ -1,0 +1,46 @@
+body {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    font-family: "Droid Sans", "Arial", sans;
+}
+
+#spinner {
+    position: absolute;
+    width: 100px;
+    height: 400%;
+    text-align: right;
+}
+
+#spinner span {
+    display: block;
+    height: 20px;
+    margin-right: 40px;
+}
+
+#pointer {
+    position: fixed;
+    top: 50%;
+    left: 70px;
+    margin-top: -7px;
+}
+
+#content {
+    position: absolute;
+    right: 0;
+}
+
+.webgl-canvas {
+    width: 600px;
+    height: 400px;
+}
+
+.webgl-canvas.fixed {
+    left: 130px;
+    position: fixed;
+    top: 50%;
+    margin-top: -240px;
+}

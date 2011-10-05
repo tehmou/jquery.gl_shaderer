@@ -1,0 +1,87 @@
+body {
+     position: absolute;
+     width: 100%;
+     height: 100%;
+     margin: 0;
+     padding: 0;
+     background: #666;
+     text-shadow: #ccc 1px 1px 2px;
+     font-size: .9rem;
+ }
+
+ h1, h2 {
+     margin: 0;
+     font-family: "Helvetica Neue", "Droid Sans", Arial, sans;
+ }
+
+ h1 {
+     padding: 0;
+     text-align: center;
+     font-size: 3rem;
+ }
+
+ h2 {
+     padding: .2rem 0 1rem 0;
+ }
+
+ pre {
+     margin: 0 0 0 1rem;
+     font-size: .7rem;
+ }
+
+ p {
+     margin: 0 0 1rem 0;
+ }
+
+a {
+    color: #333;
+}
+
+a:hover {
+    color: #555;
+    text-decoration: none;
+}
+
+ .hr {
+     border-top: 1px solid #ddd;
+     left: 0;
+     right: 0;
+     margin: 2rem 0;
+ }
+
+.footer {
+    display: block;
+    text-align: right;
+    padding: .5rem 1rem;
+}
+
+ .webgl-canvas {
+     width: 27rem;
+     height: 18rem;
+     border: 1px solid #888;
+ }
+
+ .left {
+     display: table-cell;
+ }
+
+ .paragraph {
+     display: table-cell;
+     padding: 0 0 0 1rem;
+     vertical-align: top;
+ }
+
+ #content-wrapper {
+     width: 60rem;
+     background: #fff;
+     min-height: 100%;
+     margin: 0 auto;
+     border-left: 1rem solid #eee;
+     border-right: 1rem solid #eee;
+ }
+
+ #content {
+     border-left: .1rem solid #ddd;
+     border-right: .1rem solid #ddd;
+     padding: 3rem 1.5rem;
+ }

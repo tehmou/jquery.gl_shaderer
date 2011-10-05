@@ -3,7 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-    <title>jquery.gl_shadered burning sample</title>
+    <title>Fragment shader gallery</title>
+
+    <link rel="stylesheet" href="index.css">
 
     <script id="shader-vs" type="shader-vs">
 
@@ -118,83 +120,6 @@ void main(void) {
 
     </script>
 
-    <style type="text/css">
-
-        body {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #666;
-            text-shadow: #ccc 1px 1px 2px;
-            font-size: .9rem;
-        }
-
-        h1, h2 {
-            margin: 0;
-            font-family: "Helvetica Neue", Arial, sans;
-        }
-
-        h1 {
-            padding: 0;
-            text-align: center;
-            font-size: 3rem;
-        }
-
-        h2 {
-            padding: .2rem 0 1rem 0;
-        }
-
-        pre {
-            margin: 0 0 0 1rem;
-            font-size: .7rem;
-        }
-
-        p {
-            margin: 0 0 1rem 0;
-        }
-
-        .hr {
-            border-top: 1px solid #ddd;
-            left: 0;
-            right: 0;
-            margin: 2rem 0;
-        }
-
-        .webgl-canvas {
-            width: 27rem;
-            height: 18rem;
-            border: 1px solid #888;
-        }
-
-        .left {
-            display: table-cell;
-        }
-
-        .paragraph {
-            display: table-cell;
-            padding: 0 0 0 1rem;
-            vertical-align: top;
-        }
-
-        #content-wrapper {
-            width: 60rem;
-            background: #fff;
-            min-height: 100%;
-            margin: 0 auto;
-            border-left: 1rem solid #eee;
-            border-right: 1rem solid #eee;
-        }
-
-        #content {
-            border-left: .1rem solid #ddd;
-            border-right: .1rem solid #ddd;
-            padding: 3rem 1.5rem;
-        }
-
-    </style>
-
     </head>
     <body>
         <div id="content-wrapper">
@@ -242,6 +167,7 @@ void main(void) {
                 <div class="hr"></div>
 
             </div>
+            <span class="footer"><a href="http://github.com/tehmou">@Github</a></span>
         </div>
     </body>
 </html>
