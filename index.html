@@ -28,7 +28,8 @@
         uniform float ratio;
         varying vec2 picturePosition;
 
-        void addDistortion(vec2 delta, in vec2 pos, in sampler2D s, inout vec2 distort) {
+        void addDistortion(vec2 delta, in vec2 pos,
+                in sampler2D s, inout vec2 distort) {
             distort = distort + delta*texture2D(s, pos+delta).x;
         }
 
@@ -43,9 +44,9 @@
 
             float alpha = clamp(burnRatio/.03, 0.0, 1.0);
 
-            float overlayColorMagnitude = 1.0-clamp(burnRatio/0.3, 0.0, 1.0);
-            vec3 overlayColor = vec3(-.3*overlayColorMagnitude,-.7*overlayColorMagnitude,-1.0);
-            vec3 colorAdjust = overlayColorMagnitude*overlayColor;
+            float magnitude = 1.0-clamp(burnRatio/0.3, 0.0, 1.0);
+            vec3 overlayColor = vec3(-.3*magnitude,-.7*magnitude,-1.0);
+            vec3 colorAdjust = magnitude*overlayColor;
 
 
             vec2 distort = vec2(0.0);
@@ -61,7 +62,7 @@
             addDistortion(vec2(-nx, ny), texCoord, tex2, distort);
             addDistortion(vec2(-nx, 0.0), texCoord, tex2, distort);
 
-            vec4 base = vec4(texture2D(tex0, texCoord+distort*burnRatio).xyz, 1.0);//(alpha>0.0?1.0:0.0));
+            vec4 base = vec4(texture2D(tex0, texCoord+distort*burnRatio).xyz, 1.0);
             gl_FragColor = vec4(base.xyz+colorAdjust+(1.0-alpha), alpha);
         }
     </script>
@@ -72,6 +73,9 @@
     <script type="text/javascript">
 
         $(function () {
+            $("#vs-shader-pre").text($("#shader-vs").html());
+            $("#fs-shader-pre").text($("#shader-fs").html());
+
             var renderer = {
                 textureUrls: ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
                 fragmentShaders: [$("#shader-fs").html()],
@@ -124,6 +128,10 @@
         <div id="pointer"><span>&lt;=</span></div>
         <div id="content">
             <h1>Shader example</h1>
+            <h2>Vertex shader</h2>
+            <pre id="vs-shader-pre"></pre>
+            <h2>Fragment shader</h2>
+            <pre id="fs-shader-pre"></pre>
         </div>
     </body>
 </html>

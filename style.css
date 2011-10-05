@@ -31,7 +31,6 @@ body {
 #content {
     position: absolute;
     right: 0;
-    background: red;
 }
 
 #webgl-canvas {
