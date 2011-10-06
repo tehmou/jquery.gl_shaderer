@@ -14,6 +14,16 @@
 
         $(function () {
 
+            if (navigator.userAgent.indexOf("Safari") !== -1) {
+                try {
+                    if (!document.createElement('canvas').getContext('experimental-webgl')) {
+                        $("#safari-warning").css("display", "block");
+                    }
+                } catch (e) {
+                    $("#safari-warning").css("display", "block");
+                }
+            }
+
             var images,
                 textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
                 shaderNames = [
@@ -55,6 +65,15 @@
             <div id="content">
                 <h1>Fragment Shader Gallery</h1>
                 <div class="intro">
+                    <div id="safari-warning" class="error" style="display: none"><p>You are using Safari without WebGL support. In newer versions you can enable it:</p>
+                        <ul>
+                            <li>In menu bar open Safari->Preferences</li>
+                            <li>Open "Advanced" tab</li>
+                            <li>Turn on "Show Developer menu in menu bar"</li>
+                            <li>In menu bar toggle Develop->Enable WebGL</li>
+                            <li>Refresh the page</li>
+                        </ul>
+                    </div>
                     <p>WebGL shaders give you the power to manipulate pixels freely in real-time. The code you write for processing one pixel is executed for every single one of them. Shaders give possibilities far beyond anything else known to web browsers so far.</p>
                     <p>However, everything comes at a price. You have to use a C-like shader language, instead of the friendly old JavaScript. Writing shaders can be a bit&mdash;a lot&mdash;scary, but fortunately the number of lines you have to write to produce sweet results is negligible.</p>
                     <p>Lastly, while most modern <b>real</b> browsers do support WebGL, there is a chance that it will never work on Internet Explorer. Or mobile.</p>

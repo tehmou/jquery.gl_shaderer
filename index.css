@@ -42,6 +42,10 @@ a:hover {
     text-decoration: none;
 }
 
+.error {
+    color: #c00;
+}
+
  .hr {
      border-top: 1px solid #ddd;
      left: 0;
