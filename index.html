@@ -7,75 +7,6 @@
 
     <link rel="stylesheet" href="index.css">
 
-    <script id="plain-fs" type="shader-fs">
-// Some boilerplate code.
-#ifdef GL_ES
-precision highp float;
-#endif
-
-// The vertex shader will give us this.
-varying vec2 xyPos;
-
-// Pixel size of the canvas.
-uniform vec2 resolution;
-
-// tex0 is our image.
-uniform sampler2D tex0;
-
-// Entry point for shaders.
-void main(void) {
-    // Color of the current pixel in (r,g,b,a).
-    vec4 o = texture2D(tex0, xyPos);
-
-    // Give our result to WebGL.
-    gl_FragColor = o;
-}
-    </script>
-
-    <script id="negative-fs" type="shader-fs">
-#ifdef GL_ES
-precision highp float;
-#endif
-
-varying vec2 xyPos;
-uniform vec2 resolution;
-uniform sampler2D tex0;
-
-void main(void) {
-    vec4 o = texture2D(tex0, xyPos);
-
-    // In WebGL all color values are from 0 to 1.
-    vec3 white = vec3(1.0, 1.0, 1.0);
-
-    vec3 negative = white - o.rgb;
-
-    // Return fully opaque.
-    gl_FragColor = vec4(negative, 1.0);
-}
-    </script>
-
-    <script id="bw-fs" type="shader-fs">
-#ifdef GL_ES
-precision highp float;
-#endif
-
-varying vec2 xyPos;
-uniform vec2 resolution;
-uniform sampler2D tex0;
-
-void main(void) {
-    vec4 o = texture2D(tex0, xyPos);
-
-    // Calculate average.
-    float average = (o.r+o.g+o.b)/3.0;
-
-    // Set all channels to the same value.
-    vec3 bw = vec3(average);
-        
-    gl_FragColor = vec4(bw, 1.0);
-}
-    </script>
-
     <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
     <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
 
@@ -83,29 +14,34 @@ void main(void) {
 
         $(function () {
 
-            function initialize(images) {
-                $("#webgl-canvas-normal").gl_shadered({
-                    images: images,
-                    fragmentShaders: [$("#plain-fs").html()]
-                });
+            var images,
+                textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                shaderNames = [
+                    "plain",
+                    "negative",
+                    "bw"
+                ];
 
-                $("#webgl-canvas-negative").gl_shadered({
-                    images: images,
-                    fragmentShaders: [$("#negative-fs").html()]
-                });
-
-                $("#webgl-canvas-bw").gl_shadered({
-                    images: images,
-                    fragmentShaders: [$("#bw-fs").html()]
+            function loadShader(name, options) {
+                options = options || {};
+                $.ajax("shaders/"+name, {
+                    success: function (data) {
+                        $("#webgl-canvas-"+name).gl_shadered($.extend(options, {
+                            images: images,
+                            fragmentShaders: [data]
+                        }, options));
+                        $("#"+name+"-fs-code").html(data);
+                    }
                 });
             }
 
-            $("#plain-fs-code").html($("#plain-fs").text());
-            $("#negative-fs-code").html($("#negative-fs").text());
-            $("#bw-fs-code").html($("#bw-fs").text());
+            function initialize() {
+                for (var i = 0; i < shaderNames.length; i++) {
+                    loadShader(shaderNames[i]);
+                }
+            }
 
-            var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"];
-            $.fn.gl_shadered.loadImages(textureUrls, initialize);
+            $.fn.gl_shadered.loadImages(textureUrls, function (data) { images = data; initialize(); });
         });
 
     </script>
@@ -124,7 +60,7 @@ void main(void) {
                 <div class="hr"></div>
                 <div>
                     <div class="left">
-                        <canvas id="webgl-canvas-normal" class="webgl-canvas"></canvas>
+                        <canvas id="webgl-canvas-plain" class="webgl-canvas"></canvas>
                     </div>
                     <div class="paragraph">
                         <h2>Starting point</h2>

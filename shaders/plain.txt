@@ -1,0 +1,22 @@
+// Some boilerplate code.
+#ifdef GL_ES
+precision highp float;
+#endif
+
+// The vertex shader will give us this.
+varying vec2 xyPos;
+
+// Pixel size of the canvas.
+uniform vec2 resolution;
+
+// tex0 is our image.
+uniform sampler2D tex0;
+
+// Entry point for shaders.
+void main(void) {
+    // Color of the current pixel in (r,g,b,a).
+    vec4 o = texture2D(tex0, xyPos);
+
+    // Give our result to WebGL.
+    gl_FragColor = o;
+}

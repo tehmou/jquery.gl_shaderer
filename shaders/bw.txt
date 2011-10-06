@@ -1,0 +1,19 @@
+#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec2 xyPos;
+uniform vec2 resolution;
+uniform sampler2D tex0;
+
+void main(void) {
+    vec4 o = texture2D(tex0, xyPos);
+
+    // Calculate average.
+    float average = (o.r+o.g+o.b)/3.0;
+
+    // Set all channels to the same value.
+    vec3 bw = vec3(average);
+
+    gl_FragColor = vec4(bw, 1.0);
+}
