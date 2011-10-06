@@ -26,9 +26,12 @@
                 options = options || {};
                 $.ajax("shaders/"+name+".txt", {
                     success: function (data) {
-                        $("#webgl-canvas-"+name).gl_shadered($.extend(options, {
+                        var $el = $("#webgl-canvas-"+name);
+                        $el.gl_shadered($.extend(options, {
                             images: images,
-                            fragmentShaders: [data]
+                            fragmentShaders: [data],
+                            viewportWidth: $el.width(),
+                            viewportHeight: $el.height()
                         }, options));
                         $("#"+name+"-fs-code").html(data);
                     }
@@ -60,7 +63,7 @@
                 <div class="hr"></div>
                 <div>
                     <div class="left">
-                        <canvas id="webgl-canvas-plain" class="webgl-canvas"></canvas>
+                        <div id="webgl-canvas-plain" class="webgl-canvas"></div>
                     </div>
                     <div class="paragraph">
                         <h2>Starting point</h2>
@@ -75,7 +78,7 @@
 
                 <div>
                     <div class="left">
-                        <canvas id="webgl-canvas-negative" class="webgl-canvas"></canvas>
+                        <div id="webgl-canvas-negative" class="webgl-canvas"></div>
                     </div>
                     <div class="paragraph">
                         <h2>Negative</h2>
@@ -87,7 +90,7 @@
 
                 <div>
                     <div class="left">
-                        <canvas id="webgl-canvas-bw" class="webgl-canvas"></canvas>
+                        <div id="webgl-canvas-bw" class="webgl-canvas"></div>
                     </div>
                     <div class="paragraph">
                         <h2>Black and white (linear)</h2>

@@ -2,10 +2,22 @@
 
     var gl_shadered = function (options) {
         return this.each(function () {
-            // Extend options with itself to restore all overridden values.
-            $.extend(options, { el: this }, gl_shadered.renderer, $.extend({}, options));
-            options.init();
-            options.render();
+            var $this = $(this),
+                canvas = options.el;
+            try {
+                // Create canvas if one was not specified in options.
+                if (!canvas) {
+                    canvas = $("<canvas></canvas>")[0];
+                    $this.append(canvas);
+                }
+                // Extend options with itself to restore all overridden values.
+                $.extend(options, { el: canvas }, gl_shadered.renderer, $.extend({}, options));
+                options.init();
+                options.render();
+            } catch (e) {
+                $(canvas).remove();
+                $this.append("<pre>" + e + "</pre>")
+            }
         });
     };
 
@@ -21,7 +33,9 @@
             "}";
 
     gl_shadered.renderer = ({
-        
+
+        viewportWidth: 640,
+        viewportHeight: 480,
         uniforms: {},
         texturePrefix: "tex",
         useResolutionUniform: true,
@@ -34,8 +48,6 @@
         gl: null,
         shader: null,
         textures: [],
-        viewportWidth: 0,
-        viewportHeight: 0,
 
         init: function () {
             this.bindRender();
@@ -53,14 +65,14 @@
             this.render = function () { thisRender.apply(that, arguments); };
         },
         updateDimensions: function () {
-            var $el = $(this.el);
-            this.el.width = $el.width();
-            this.el.height = $el.height();
-            this.viewportWidth = this.el.width;
-            this.viewportHeight = this.el.height;
+            this.el.width = this.viewportWidth;
+            this.el.height = this.viewportHeight;
         },
         createGL: function () {
             this.gl = this.el.getContext("experimental-webgl");
+            if (!this.gl) {
+                throw "WebGL not available";
+            }
             this.gl.enable(this.gl.TEXTURE_2D);
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
