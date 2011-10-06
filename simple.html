@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>Simple Sample</title>
+
+    <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            $(document.body).gl_shaderer({
+                textureUrls: ["images/IMG_2273.JPG"],
+                fragmentShaderUrls: ["shaders/bw.txt"]
+            });
+        });
+
+    </script>
+
+</head>
+<body>
+</body>
+</html>

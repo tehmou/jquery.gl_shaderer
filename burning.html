@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
-    <title>jquery.gl_shadered burning sample</title>
+    <title>jquery.gl_shaderer burning sample</title>
     <link rel="stylesheet" href="burning.css">
 
     <script type="shader-vs" id="shader-vs">
@@ -112,7 +112,7 @@
             }
 
             function initialize() {
-                $("#webgl-canvas").gl_shadered(renderer);
+                $("#webgl-canvas").gl_shaderer(renderer);
                 $(window).resize(updateSize);
                 $(window).scroll(updateScroll);
                 updateSize();

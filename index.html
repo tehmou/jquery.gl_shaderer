@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="index.css">
 
     <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="js/detectSafari.js"></script>
     <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
 
     <script type="text/javascript">
@@ -27,7 +28,7 @@
                 $.ajax("shaders/"+name+".txt", {
                     success: function (data) {
                         var $el = $("#webgl-canvas-"+name);
-                        $el.gl_shadered($.extend(options, {
+                        $el.gl_shaderer($.extend(options, {
                             images: images,
                             fragmentShaders: [data],
                             viewportWidth: $el.width(),
@@ -44,7 +45,7 @@
                 }
             }
 
-            $.fn.gl_shadered.loadImages(textureUrls, function (data) { images = data; initialize(); });
+            $.fn.gl_shaderer.loadImages(textureUrls, function (data) { images = data; initialize(); });
         });
 
     </script>
@@ -55,6 +56,15 @@
             <div id="content">
                 <h1>Fragment Shader Gallery</h1>
                 <div class="intro">
+                    <div id="safari-warning" class="error" style="display: none"><p>You are using Safari without WebGL support. In newer versions you can enable it:</p>
+                        <ul>
+                            <li>In menu bar open Safari->Preferences</li>
+                            <li>Open "Advanced" tab</li>
+                            <li>Turn on "Show Developer menu in menu bar"</li>
+                            <li>In menu bar toggle Develop->Enable WebGL</li>
+                            <li>Refresh the page</li>
+                        </ul>
+                    </div>
                     <p>WebGL shaders give you the power to manipulate pixels freely in real-time. The code you write for processing one pixel is executed for every single one of them. Shaders give possibilities far beyond anything else known to web browsers so far.</p>
                     <p>However, everything comes at a price. You have to use a C-like shader language, instead of the friendly old JavaScript. Writing shaders can be a bit&mdash;a lot&mdash;scary, but fortunately the number of lines you have to write to produce sweet results is negligible.</p>
                     <p>Lastly, while most modern <b>real</b> browsers do support WebGL, there is a chance that it will never work on Internet Explorer. Or mobile.</p>

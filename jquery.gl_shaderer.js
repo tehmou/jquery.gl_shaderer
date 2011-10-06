@@ -1,27 +1,107 @@
 (function ($) {
 
-    var gl_shadered = function (options) {
+    var gl_shaderer = function (options) {
         return this.each(function () {
             var $this = $(this),
                 canvas = options.el;
-            try {
-                // Create canvas if one was not specified in options.
-                if (!canvas) {
-                    canvas = $("<canvas></canvas>")[0];
-                    $this.append(canvas);
-                }
-                // Extend options with itself to restore all overridden values.
-                $.extend(options, { el: canvas }, gl_shadered.renderer, $.extend({}, options));
-                options.init();
-                options.render();
-            } catch (e) {
-                $(canvas).remove();
-                $this.append("<pre>" + e + "</pre>")
+
+            // Create canvas if one was not specified in options.
+            if (!canvas) {
+                canvas = $("<canvas></canvas>")[0];
+                $this.append(canvas);
             }
+            // Extend options with itself to restore all overridden values.
+            $.extend(options, { el: canvas }, gl_shaderer.renderer, $.extend({}, options));
+
+            function loadTextures (callback) {
+                if (!options.textureUrls) {
+                    callback();
+                } else {
+                    gl_shaderer.loadImages(options.textureUrls, function (images) {
+                        options.images = images;
+                        callback();
+                    })
+                }
+            }
+            function loadFragmentShaders (callback) {
+                if (!options.fragmentShaderUrls) {
+                    callback();
+                } else {
+                    gl_shaderer.loadFiles(options.fragmentShaderUrls, function (files) {
+                        options.fragmentShaders = files;
+                        callback();
+                    });
+                }
+            }
+            function loadVertexShaders(callback) {
+                if (!options.vertexShaderUrls) {
+                    callback();
+                } else {
+                    gl_shaderer.loadFiles(options.vertexShaderUrls, function (files) {
+                        options.vertexShaders = files;
+                        callback();
+                    });
+                }
+            }
+            loadTextures(function () {
+                loadFragmentShaders(function () {
+                    loadVertexShaders(function () {
+                        try {
+                            options.init();
+                            options.render();
+                        } catch (e) {
+                            $(canvas).remove();
+                            $this.append("<pre>" + e + "</pre>")
+                        }
+                    })
+                })
+            });
         });
     };
 
-    gl_shadered.defaultVS = "" +
+    gl_shaderer.loadFiles = function (urls, callback) {
+        var files = [], filesToLoad = urls.length;
+        if (filesToLoad === 0) {
+            callback(files);
+        }
+        for (var i = 0; i < urls.length; i++) {
+            (function () {
+                var index = i;
+                $.ajax(urls[index], {
+                    success: function (data) {
+                        files[index] = data;
+                        if (--filesToLoad <= 0) {
+                            callback(files);
+                        }
+                    },
+                    error: function () {
+                        throw "Error loading " + urls[index];
+                    }
+                })
+            })();
+        }
+    };
+
+    gl_shaderer.loadImages = function (urls, callback) {
+        var images = [], imagesToLoad = urls.length;
+        if (imagesToLoad === 0) {
+            callback(images);
+        }
+        for (var i = 0; i < urls.length; i++) {
+            (function () {
+                var index = i, image = new Image();
+                image.onload = function() {
+                    images[index] = image;
+                    if (--imagesToLoad <= 0) {
+                        callback(images)
+                    }
+                };
+                image.src = urls[i];
+            })();
+        }
+    };
+
+    gl_shaderer.defaultVS = "" +
             "attribute vec3 position;\n" +
             "\n" +
             "// Our variable for passing the position to the fragment shaders.\n" +
@@ -32,7 +112,7 @@
             "    gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n" +
             "}";
 
-    gl_shadered.renderer = ({
+    gl_shaderer.renderer = ({
 
         viewportWidth: 640,
         viewportHeight: 480,
@@ -42,7 +122,7 @@
         resolutionUniformName: "resolution",
         usePositionAttribute: true,
         positionAttributeName: "position",
-        vertexShaders: [gl_shadered.defaultVS],
+        vertexShaders: [gl_shaderer.defaultVS],
         fragmentShaders: [],
 
         gl: null,
@@ -77,7 +157,7 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createShaderProgram: function () {
-            var shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);
+            var shader = gl_shaderer.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);
             this.attachShaderProgram(shader)
         },
         attachShaderProgram: function (shader) {
@@ -161,7 +241,7 @@
         }
     });
 
-    gl_shadered.glShaderUtils = {
+    gl_shaderer.glShaderUtils = {
         createProgram: function (gl, vertexShaderCodes, fragmentShaderCodes) {
             var i, tmpProgram = gl.createProgram(), vertexShaders = [], fragmentShaders = [];
             try {
@@ -199,22 +279,6 @@
         }
     };
 
-    gl_shadered.loadImages = function (urls, callback) {
-        var images = [], imagesToLoad = urls.length;
-        for (var i = 0; i < urls.length; i++) {
-            (function () {
-                var index = i, image = new Image();
-                image.onload = function() {
-                    images[index] = image;
-                    if (--imagesToLoad <= 0) {
-                        callback(images)
-                    }
-                };
-                image.src = urls[i];
-            })();
-        }
-    };
-
-    $.fn.gl_shadered = gl_shadered;
+    $.fn.gl_shaderer = gl_shaderer;
 
 })(jQuery);
