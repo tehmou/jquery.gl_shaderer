@@ -6,16 +6,6 @@
     <title>jquery.gl_shaderer burning sample</title>
     <link rel="stylesheet" href="burning.css">
 
-    <script type="shader-vs" id="shader-vs">
-        attribute vec3 position;
-        varying vec2 picturePosition;
-
-        void main(void) {
-            picturePosition = position.st;
-            gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-        }
-    </script>
-    
     <script type="shader-fs" id="shader-fs">
         #ifdef GL_ES
         precision highp float;
@@ -26,7 +16,7 @@
         uniform sampler2D tex1;
         uniform sampler2D tex2;
         uniform float ratio;
-        varying vec2 picturePosition;
+        varying vec2 xyPos;
 
         void addDistortion(vec2 delta, in vec2 pos,
                 in sampler2D s, inout vec2 distort) {
@@ -34,8 +24,7 @@
         }
 
         void main(void) {
-            vec2 p = picturePosition.xy;
-            vec2 texCoord = vec2(p.s*.5+.5,.5-p.t*.5);
+            vec2 texCoord = xyPos.xy;
             vec4 o0 = texture2D(tex0,texCoord);
             vec4 o1 = texture2D(tex1,texCoord);
             vec4 o2 = texture2D(tex2,texCoord);
@@ -73,13 +62,11 @@
     <script type="text/javascript">
 
         $(function () {
-            $("#vs-shader-pre").text($("#shader-vs").html());
             $("#fs-shader-pre").text($("#shader-fs").html());
 
             var renderer = {
                 images: [],
                 fragmentShaders: [$("#shader-fs").html()],
-                vertexShaders: [$("#shader-vs").html()],
                 uniforms: { ratio: { type: "1f", value: 0.0 } }
             };
 
@@ -140,13 +127,11 @@
 
     </head>
     <body>
-        <canvas id="webgl-canvas" class="webgl-canvas fixed"></canvas>
+        <div id="webgl-canvas" class="webgl-canvas fixed"></div>
         <div id="spinner"></div>
         <div id="pointer"><span>&lt;=</span></div>
         <div id="content">
             <h1>Shader example</h1>
-            <h2>Vertex shader</h2>
-            <pre id="vs-shader-pre"></pre>
             <h2>Fragment shader</h2>
             <pre id="fs-shader-pre"></pre>
         </div>
