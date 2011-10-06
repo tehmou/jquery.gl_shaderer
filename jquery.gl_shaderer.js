@@ -116,6 +116,7 @@
 
         viewportWidth: 640,
         viewportHeight: 480,
+        adjustViewportToFitFirstTexture: false,
         uniforms: {},
         texturePrefix: "tex",
         useResolutionUniform: true,
@@ -145,6 +146,10 @@
             this.render = function () { thisRender.apply(that, arguments); };
         },
         updateDimensions: function () {
+            if (this.adjustViewportToFitFirstTexture && this.images && this.images.length > 0) {
+                this.viewportWidth = this.images[0].width;
+                this.viewportHeight = this.images[0].height;
+            }
             this.el.width = this.viewportWidth;
             this.el.height = this.viewportHeight;
         },
