@@ -16,6 +16,7 @@ attribute vec3 position;
 varying vec2 xyPos;
 
 void main(void) {
+    // Our default shape is a plane, but not at origin.
     xyPos = vec2(position.s*.5+.5,.5-position.t*.5);
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
 }
@@ -58,8 +59,13 @@ uniform sampler2D tex0;
 void main(void) {
     vec4 o = texture2D(tex0, xyPos);
 
-    // Return a percentage value with alpha=1.0
-    gl_FragColor = vec4(1.0-o.x, 1.0-o.y, 1.0-o.z, 1.0);
+    // In WebGL all color values are from 0 to 1.
+    vec3 white = vec3(1.0, 1.0, 1.0);
+
+    vec3 negative = white - o.rgb;
+
+    // Return fully opaque.
+    gl_FragColor = vec4(negative, 1.0);
 }
     </script>
 
@@ -78,8 +84,10 @@ void main(void) {
     // Calculate average.
     float average = (o.r+o.g+o.b)/3.0;
 
-    // Create new that is grayscale.
-    gl_FragColor = vec4(average, average, average, 1.0);
+    // Set all channels to the same value.
+    vec3 bw = vec3(average);
+        
+    gl_FragColor = vec4(bw, 1.0);
 }
     </script>
 
