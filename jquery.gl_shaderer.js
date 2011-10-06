@@ -1,3 +1,13 @@
+/**
+ * jquery.gl_shaderer 0.1.0
+ *
+ * (c) 2011 Timo Tuominen
+ * jquery.gl_shaderer may be freely distributed under the MIT license.
+ * For all details and documentation:
+ * http://github.com/tehmou/jquery.gl_shaderer
+ *
+ */
+
 (function ($) {
 
     var gl_shaderer = function (options) {
