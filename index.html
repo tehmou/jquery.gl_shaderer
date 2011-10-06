@@ -24,7 +24,7 @@
 
             function loadShader(name, options) {
                 options = options || {};
-                $.ajax("shaders/"+name, {
+                $.ajax("shaders/"+name+".txt", {
                     success: function (data) {
                         $("#webgl-canvas-"+name).gl_shadered($.extend(options, {
                             images: images,
