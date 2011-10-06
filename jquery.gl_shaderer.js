@@ -133,7 +133,11 @@
         resolutionUniformName: "resolution",
         usePositionAttribute: true,
         positionAttributeName: "position",
+        textureUrls: null,
+        images: null,
+        vertexShaderUrls: null,
         vertexShaders: [gl_shaderer.defaultVS],
+        fragmentShaderUrls: null,
         fragmentShaders: [],
 
         gl: null,

@@ -8,16 +8,31 @@
     <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
     <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
 
-    <script type="text/javascript">
+    <script type="shader-fs" id="fs-bw">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
+        
+        varying vec2 xyPos;
+        uniform vec2 resolution;
+        uniform sampler2D tex0;
 
+        void main(void) {
+            vec4 o = texture2D(tex0, xyPos);
+            float average = (o.r+o.g+o.b)/3.0;
+            vec3 bw = vec3(average);
+            gl_FragColor = vec4(bw, 1.0);
+        }
+    </script>
+
+    <script type="text/javascript">
         $(function () {
             $(document.body).gl_shaderer({
                 adjustViewportToFitFirstTexture: true,
                 textureUrls: ["images/IMG_2273.JPG"],
-                fragmentShaderUrls: ["shaders/bw.txt"]
+                fragmentShaders: [$("#fs-bw").text()]
             });
         });
-
     </script>
 
 </head>
