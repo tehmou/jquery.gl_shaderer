@@ -9,6 +9,17 @@
         });
     };
 
+    gl_shadered.defaultVS = "" +
+            "attribute vec3 position;\n" +
+            "\n" +
+            "// Our variable for passing the position to the fragment shaders.\n" +
+            "varying vec2 xyPos;\n" +
+            "\n" +
+            "void main(void) {\n" +
+            "    xyPos = vec2(position.s*.5+.5,.5-position.t*.5);\n" +
+            "    gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n" +
+            "}";
+
     gl_shadered.renderer = ({
         
         uniforms: {},
@@ -17,6 +28,8 @@
         resolutionUniformName: "resolution",
         usePositionAttribute: true,
         positionAttributeName: "position",
+        vertexShaders: [gl_shadered.defaultVS],
+        fragmentShaders: [],
 
         gl: null,
         shader: null,
@@ -52,10 +65,8 @@
             this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
         },
         createShaderProgram: function () {
-            if (this.vertexShaders || this.fragmentShaders) {
-                var shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);;
-                this.attachShaderProgram(shader)
-            }
+            var shader = gl_shadered.glShaderUtils.createProgram(this.gl,  this.vertexShaders, this.fragmentShaders);
+            this.attachShaderProgram(shader)
         },
         attachShaderProgram: function (shader) {
             this.shader = shader;

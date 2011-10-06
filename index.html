@@ -7,21 +7,6 @@
 
     <link rel="stylesheet" href="index.css">
 
-    <script id="shader-vs" type="shader-vs">
-
-// Coordinate we are rendering; provided by WebGL.
-attribute vec3 position;
-
-// Our variable for passing the position to the fragment shaders.
-varying vec2 xyPos;
-
-void main(void) {
-    // Our default shape is a plane, but not at origin.
-    xyPos = vec2(position.s*.5+.5,.5-position.t*.5);
-    gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-}
-    </script>
-
     <script id="plain-fs" type="shader-fs">
 // Some boilerplate code.
 #ifdef GL_ES
@@ -101,20 +86,17 @@ void main(void) {
             function initialize(images) {
                 $("#webgl-canvas-normal").gl_shadered({
                     images: images,
-                    fragmentShaders: [$("#plain-fs").html()],
-                    vertexShaders: [$("#shader-vs").html()]
+                    fragmentShaders: [$("#plain-fs").html()]
                 });
 
                 $("#webgl-canvas-negative").gl_shadered({
                     images: images,
-                    fragmentShaders: [$("#negative-fs").html()],
-                    vertexShaders: [$("#shader-vs").html()]
+                    fragmentShaders: [$("#negative-fs").html()]
                 });
 
                 $("#webgl-canvas-bw").gl_shadered({
                     images: images,
-                    fragmentShaders: [$("#bw-fs").html()],
-                    vertexShaders: [$("#shader-vs").html()]
+                    fragmentShaders: [$("#bw-fs").html()]
                 });
             }
 
