@@ -5,10 +5,32 @@
 
     <title>jquery.gl_shaderer</title>
 
-    <link rel="stylesheet" href="gallery.css">
+    <link rel="stylesheet" href="site/styles/gallery.css">
 
-    <script type="text/javascript" src="lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="site/js/lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="site/js/lib/underscore.js"></script>
+    <script type="text/javascript" src="site/js/lib/backbone.js"></script>
     <script type="text/javascript" src="jquery.gl_shaderer.js"></script>
+
+    <script type="text/javascript" src="site/js/namespace.js"></script>
+    <script type="text/javascript" src="site/js/router.js"></script>
+    
+    <script type="text/javascript">
+        if (navigator.userAgent.indexOf("Safari") !== -1) {
+            try {
+                if (!document.createElement('canvas').getContext('experimental-webgl')) {
+                    $("#safari-warning").css("display", "block");
+                }
+            } catch (e) {
+                $("#safari-warning").css("display", "block");
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+        new timotuominen.Router();
+        Backbone.history.start();
+    </script>
 
     </head>
     <body>
@@ -16,13 +38,30 @@
             <div id="content">
                 <h1>jquery.gl_shaderer</h1>
                 <div class="intro">
-                    <h2><a href="simple.html">Simple Sample</a></h2>
-                    <h2><a href="gallery.html">Fragment Shader Gallery</a></h2>
-                    <h2><a href="burning.html">Gradual Burn Shader</a></h2>
+                    <div id="safari-warning" class="error" style="display: none"><p>You are using Safari without WebGL support. In newer versions you can enable it:</p>
+                        <ul>
+                            <li>In menu bar open Safari->Preferences</li>
+                            <li>Open "Advanced" tab</li>
+                            <li>Turn on "Show Developer menu in menu bar"</li>
+                            <li>In menu bar toggle Develop->Enable WebGL</li>
+                            <li>Refresh the page</li>
+                        </ul>
+                    </div>
+                    <p>WebGL shaders give you the power to manipulate pixels freely in real-time. The code you write for processing one pixel is executed for every single one of them. Shaders give possibilities far beyond anything else known to web browsers so far.</p>
+                    <p>However, everything comes at a price. You have to use a C-like shader language, instead of the friendly old JavaScript. Writing shaders can be a bit&mdash;a lot&mdash;scary, but fortunately the number of lines you have to write to produce sweet results is negligible.</p>
+                    <p>Lastly, while most modern <b>real</b> browsers do support WebGL, there is a chance that it will never work on Internet Explorer. Or mobile.</p>
                 </div>
 
                 <div class="hr"></div>
 
+                <div class="intro">
+                    <h2><a href="#simple">Simple Sample</a></h2>
+                    <h2><a href="#gallery">Fragment Shader Gallery</a></h2>
+                    <h2><a href="#burning">Gradual Burn Shader</a></h2>
+                </div>
+
+                <div class="hr"></div>
+            </div>
             <span class="footer"><a href="http://github.com/tehmou/jquery.gl_shaderer">jquery.gl_shaderer@Github</a></span>
         </div>
     </body>

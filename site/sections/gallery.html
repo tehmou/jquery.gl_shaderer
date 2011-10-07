@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>Fragment Shader Gallery</title>
+
+    <link rel="stylesheet" href="../styles/gallery.css">
+
+    <script type="text/javascript" src="../js/lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="../../jquery.gl_shaderer.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+
+            var images,
+                textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
+                shaderNames = [
+                    "plain",
+                    "negative",
+                    "bw"
+                ];
+
+            function loadShader(name, options) {
+                options = options || {};
+                $.ajax("shaders/"+name+".txt", {
+                    success: function (data) {
+                        var $el = $("#webgl-canvas-"+name);
+                        $el.gl_shaderer($.extend(options, {
+                            images: images,
+                            fragmentShaders: [data],
+                            viewportWidth: $el.width(),
+                            viewportHeight: $el.height()
+                        }, options));
+                        $("#"+name+"-fs-code").html(data);
+                    }
+                });
+            }
+
+            function initialize() {
+                for (var i = 0; i < shaderNames.length; i++) {
+                    loadShader(shaderNames[i]);
+                }
+            }
+
+            $.fn.gl_shaderer.loadImages(textureUrls, function (data) { images = data; initialize(); });
+        });
+
+    </script>
+
+    </head>
+    <body>
+        <div id="content-wrapper">
+            <div id="content">
+                <h1>Fragment Shader Gallery</h1>
+                <div class="intro">
+                    <div id="safari-warning" class="error" style="display: none"><p>You are using Safari without WebGL support. In newer versions you can enable it:</p>
+                        <ul>
+                            <li>In menu bar open Safari->Preferences</li>
+                            <li>Open "Advanced" tab</li>
+                            <li>Turn on "Show Developer menu in menu bar"</li>
+                            <li>In menu bar toggle Develop->Enable WebGL</li>
+                            <li>Refresh the page</li>
+                        </ul>
+                    </div>
+                    <p>WebGL shaders give you the power to manipulate pixels freely in real-time. The code you write for processing one pixel is executed for every single one of them. Shaders give possibilities far beyond anything else known to web browsers so far.</p>
+                    <p>However, everything comes at a price. You have to use a C-like shader language, instead of the friendly old JavaScript. Writing shaders can be a bit&mdash;a lot&mdash;scary, but fortunately the number of lines you have to write to produce sweet results is negligible.</p>
+                    <p>Lastly, while most modern <b>real</b> browsers do support WebGL, there is a chance that it will never work on Internet Explorer. Or mobile.</p>
+                </div>
+
+                <div class="hr"></div>
+                <div>
+                    <div class="left">
+                        <div id="webgl-canvas-plain" class="webgl-canvas"></div>
+                    </div>
+                    <div class="paragraph">
+                        <h2>Starting point</h2>
+                        <p>This is the image we will use.</p>
+                        <p>For all shaders here, we use a simple <b>vertex shader</b> that does not do much. Normally a vertex shader could be used to transform the vertices of the underlying 3D model. This would include, for instance, scaling or rotating them.</p>
+                        <p>Since we only want to render 2D images, we use a simple plane that covers the whole canvas. We save the coordinate of the plane we are processing in texturePos.</p>
+                        <pre id="plain-fs-code"></pre>
+                    </div>
+                </div>
+
+                <div class="hr"></div>
+
+                <div>
+                    <div class="left">
+                        <div id="webgl-canvas-negative" class="webgl-canvas"></div>
+                    </div>
+                    <div class="paragraph">
+                        <h2>Negative</h2>
+                        <pre id="negative-fs-code"></pre>
+                    </div>
+                </div>
+
+                <div class="hr"></div>
+
+                <div>
+                    <div class="left">
+                        <div id="webgl-canvas-bw" class="webgl-canvas"></div>
+                    </div>
+                    <div class="paragraph">
+                        <h2>Black and white (linear)</h2>
+                        <pre id="bw-fs-code"></pre>
+                    </div>
+                </div>
+
+                <div class="hr"></div>
+
+            </div>
+            <span class="footer"><a href="http://github.com/tehmou/jquery.gl_shaderer">jquery.gl_shaderer@Github</a></span>
+        </div>
+    </body>
+</html>
