@@ -1,127 +1,139 @@
-<script type="shader-fs" id="shader-fs">
-    #ifdef GL_ES
-    precision highp float;
-    #endif
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
 
-    uniform vec2 resolution;
-    uniform sampler2D tex0;
-    uniform sampler2D tex1;
-    uniform sampler2D tex2;
-    uniform float ratio;
-    varying vec2 xyPos;
+    <title>jquery.gl_shaderer burning sample</title>
+    <link rel="stylesheet" href="../styles/burning.css">
 
-    void addDistortion(vec2 delta, in vec2 pos,
-            in sampler2D s, inout vec2 distort) {
-        distort = distort + delta*texture2D(s, pos+delta).x;
-    }
+    <script type="shader-fs" id="shader-fs">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
 
-    void main(void) {
-        vec2 texCoord = xyPos.xy;
-        vec4 o0 = texture2D(tex0,texCoord);
-        vec4 o1 = texture2D(tex1,texCoord);
-        vec4 o2 = texture2D(tex2,texCoord);
+        uniform vec2 resolution;
+        uniform sampler2D tex0;
+        uniform sampler2D tex1;
+        uniform sampler2D tex2;
+        uniform float ratio;
+        varying vec2 xyPos;
 
-        float burnRatio = (o2.x-ratio/.75)+.3;
-
-        float alpha = clamp(burnRatio/.03, 0.0, 1.0);
-
-        float magnitude = 1.0-clamp(burnRatio/0.3, 0.0, 1.0);
-        vec3 overlayColor = vec3(-.3*magnitude,-.7*magnitude,-1.0);
-        vec3 colorAdjust = magnitude*overlayColor;
-
-
-        vec2 distort = vec2(0.0);
-        float nx = (1.0-burnRatio)*30.0/resolution.x;
-        float ny = (1.0-burnRatio)*30.0/resolution.y;
-
-        addDistortion(vec2(-nx, -ny), texCoord, tex2, distort);
-        addDistortion(vec2(0.0, -ny), texCoord, tex2, distort);
-        addDistortion(vec2(nx, -ny), texCoord, tex2, distort);
-        addDistortion(vec2(nx, 0.0), texCoord, tex2, distort);
-        addDistortion(vec2(nx, ny), texCoord, tex2, distort);
-        addDistortion(vec2(0.0, ny), texCoord, tex2, distort);
-        addDistortion(vec2(-nx, ny), texCoord, tex2, distort);
-        addDistortion(vec2(-nx, 0.0), texCoord, tex2, distort);
-
-        vec4 base = vec4(texture2D(tex0, texCoord+distort*burnRatio).xyz, 1.0);
-        gl_FragColor = vec4(base.xyz+colorAdjust+(1.0-alpha), alpha);
-    }
-</script>
-
-<script type="text/javascript" src="../js/lib/jquery-1.6.1.js"></script>
-<script type="text/javascript" src="../../jquery.gl_shaderer.js"></script>
-
-<script type="text/javascript">
-
-    $(function () {
-        $("#fs-shader-pre").text($("#shader-fs").html());
-
-        var renderer = {
-            images: [],
-            fragmentShaders: [$("#shader-fs").html()],
-            uniforms: { ratio: { type: "1f", value: 0.0 } }
-        };
-
-        function updateScroll() {
-            var scrollTop = window.pageYOffset || document.body.scrollTop;
-            var value = scrollTop/($("#spinner").height()-document.body.clientHeight);
-            renderer.uniforms.ratio.value = value;
-            renderer.render();
+        void addDistortion(vec2 delta, in vec2 pos,
+                in sampler2D s, inout vec2 distort) {
+            distort = distort + delta*texture2D(s, pos+delta).x;
         }
 
-        function updateSize() {
-            var el = $("#spinner"),
-                bodyHeight = el.height(),
-                screenWidth = $("body").width(),
-                screenHeight = $("body").height(),
-                r, item;
-            el.html("");
-            for (var i = 0; i < bodyHeight; i += 20) {
-                if (r === 1.0) {
-                    break;
-                }
-                r = Math.min(1.0, Math.max(0.0, (i - screenHeight/2)/(bodyHeight - screenHeight -20)));
-                item = $("<span>" + Math.floor(100*r) + "</span>")
-                el.append(item);
-                item.css("opacity", r);
+        void main(void) {
+            vec2 texCoord = xyPos.xy;
+            vec4 o0 = texture2D(tex0,texCoord);
+            vec4 o1 = texture2D(tex1,texCoord);
+            vec4 o2 = texture2D(tex2,texCoord);
+
+            float burnRatio = (o2.x-ratio/.75)+.3;
+
+            float alpha = clamp(burnRatio/.03, 0.0, 1.0);
+
+            float magnitude = 1.0-clamp(burnRatio/0.3, 0.0, 1.0);
+            vec3 overlayColor = vec3(-.3*magnitude,-.7*magnitude,-1.0);
+            vec3 colorAdjust = magnitude*overlayColor;
+
+
+            vec2 distort = vec2(0.0);
+            float nx = (1.0-burnRatio)*30.0/resolution.x;
+            float ny = (1.0-burnRatio)*30.0/resolution.y;
+
+            addDistortion(vec2(-nx, -ny), texCoord, tex2, distort);
+            addDistortion(vec2(0.0, -ny), texCoord, tex2, distort);
+            addDistortion(vec2(nx, -ny), texCoord, tex2, distort);
+            addDistortion(vec2(nx, 0.0), texCoord, tex2, distort);
+            addDistortion(vec2(nx, ny), texCoord, tex2, distort);
+            addDistortion(vec2(0.0, ny), texCoord, tex2, distort);
+            addDistortion(vec2(-nx, ny), texCoord, tex2, distort);
+            addDistortion(vec2(-nx, 0.0), texCoord, tex2, distort);
+
+            vec4 base = vec4(texture2D(tex0, texCoord+distort*burnRatio).xyz, 1.0);
+            gl_FragColor = vec4(base.xyz+colorAdjust+(1.0-alpha), alpha);
+        }
+    </script>
+
+    <script type="text/javascript" src="../js/lib/jquery-1.6.1.js"></script>
+    <script type="text/javascript" src="../../jquery.gl_shaderer.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            $("#fs-shader-pre").text($("#shader-fs").html());
+
+            var renderer = {
+                images: [],
+                fragmentShaders: [$("#shader-fs").html()],
+                uniforms: { ratio: { type: "1f", value: 0.0 } }
+            };
+
+            function updateScroll() {
+                var scrollTop = window.pageYOffset || document.body.scrollTop;
+                var value = scrollTop/($("#spinner").height()-document.body.clientHeight);
+                renderer.uniforms.ratio.value = value;
+                renderer.render();
             }
-            $("#content").width(screenWidth - $("#webgl-canvas").width() - 150);
-            updateScroll();
-            renderer.render();
-        }
 
-        function initialize() {
-            $("#webgl-canvas").gl_shaderer(renderer);
-            $(window).resize(updateSize);
-            $(window).scroll(updateScroll);
-            updateSize();
-            updateScroll();
-        }
-
-        var textureUrls = ["images/IMG_2273.JPG", "images/IMG_2235.JPG", "images/burn3.png"],
-            imagesToLoad = textureUrls.length;
-
-        for (var i = 0; i < textureUrls.length; i++) {
-            (function () {
-                var index = i, image = new Image();
-                image.onload = function() {
-                    renderer.images[index] = image;
-                    if (--imagesToLoad <= 0) {
-                        initialize();
+            function updateSize() {
+                var el = $("#spinner"),
+                    bodyHeight = el.height(),
+                    screenWidth = $("body").width(),
+                    screenHeight = $("body").height(),
+                    r, item;
+                el.html("");
+                for (var i = 0; i < bodyHeight; i += 20) {
+                    if (r === 1.0) {
+                        break;
                     }
-                };
-                image.src = textureUrls[i];
-            })();
-        }
-    });
+                    r = Math.min(1.0, Math.max(0.0, (i - screenHeight/2)/(bodyHeight - screenHeight -20)));
+                    item = $("<span>" + Math.floor(100*r) + "</span>")
+                    el.append(item);
+                    item.css("opacity", r);
+                }
+                $("#content").width(screenWidth - $("#webgl-canvas").width() - 150);
+                updateScroll();
+                renderer.render();
+            }
 
-</script>
+            function initialize() {
+                $("#webgl-canvas").gl_shaderer(renderer);
+                $(window).resize(updateSize);
+                $(window).scroll(updateScroll);
+                updateSize();
+                updateScroll();
+            }
 
-<div id="webgl-canvas" class="webgl-canvas fixed"></div>
-<div id="spinner"></div>
-<div id="pointer"><span>&lt;=</span></div>
-<div id="content">
-    <h1>Shader example</h1>
-    <h2>Fragment shader</h2>
-    <pre id="fs-shader-pre"></pre>
-</div>
+            var textureUrls = ["../images/IMG_2273.JPG", "../images/IMG_2235.JPG", "../images/burn3.png"],
+                imagesToLoad = textureUrls.length;
+
+            for (var i = 0; i < textureUrls.length; i++) {
+                (function () {
+                    var index = i, image = new Image();
+                    image.onload = function() {
+                        renderer.images[index] = image;
+                        if (--imagesToLoad <= 0) {
+                            initialize();
+                        }
+                    };
+                    image.src = textureUrls[i];
+                })();
+            }
+        });
+
+    </script>
+
+    </head>
+    <body>
+        <div id="webgl-canvas" class="webgl-canvas fixed"></div>
+        <div id="spinner"></div>
+        <div id="pointer"><span>&lt;=</span></div>
+        <div id="content">
+            <h1>Shader example</h1>
+            <h2>Fragment shader</h2>
+            <pre id="fs-shader-pre"></pre>
+        </div>
+    </body>
+</html>

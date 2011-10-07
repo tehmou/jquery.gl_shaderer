@@ -1,9 +1,13 @@
 timotuominen.Router = Backbone.Router.extend({
     routes: {
-        "simple": "simple"
+        ":fragment": "handler"
     },
 
-    simple: function () {
-
+    handler: function (fragment) {
+        $.ajax("site/sections/"+fragment+".html", {
+            success: function (data) {
+                $("#loaded-content").html(data);
+            }
+        });
     }
 });

@@ -17,10 +17,13 @@
 
 <script type="text/javascript">
     $(function () {
-        $(document.body).gl_shaderer({
+
+        $("#section-simple").gl_shaderer({
             adjustViewportToFitFirstTexture: true,
             textureUrls: ["images/IMG_2273.JPG"],
             fragmentShaders: [$("#fs-bw").text()]
         });
     });
 </script>
+
+<div id="section-simple"></div>
